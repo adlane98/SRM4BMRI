@@ -1,3 +1,9 @@
+## Pycharm
+MultiscaleSRModel/.idea/
+
+## Virtual env
+MultiscaleSRModel/venv/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
