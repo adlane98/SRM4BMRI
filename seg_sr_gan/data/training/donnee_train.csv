@@ -1,0 +1,3 @@
+HR_image,Label_image,Base
+img1\\fit.nii.gz,img1\\ard.nii.gz,Train
+img2\\fit.nii.gz,img2\\ard.nii.gz,Test

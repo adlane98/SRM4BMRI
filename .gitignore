@@ -3,6 +3,7 @@
 *.zip
 *.gz
 *.nrrd
+*.npy
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
