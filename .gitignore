@@ -280,3 +280,7 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+MultiscaleSRModel/__pycache__/
+
+*.h5
