@@ -5,14 +5,13 @@ import nibabel as nib
 import numpy as np
 import sys
 
-def nrrd_to_nii(files):
+def nrrd_to_niigz(path, files):
     for file in files:
         _nrrd = nrrd.read(file)
         data = _nrrd[0]
-        header = _nrrd[1]
         
         img = nib.Nifti1Image(data, np.eye(4))
-        yield img
+        nib.save(img, os.path.join(path, os.path.basename(file)[:-5]+'.nii.gz'))
 
 def main():
     if len(sys.argv) != 2:
@@ -23,14 +22,8 @@ def main():
         raise Exception("we need the path of a directory (a repo)")
     
     files = glob(path+'/*.nrrd')
-    
-    for file in files:
-        _nrrd = nrrd.read(file)
-        data = _nrrd[0]
-        header = _nrrd[1]
-        
-        img = nib.Nifti1Image(data, np.eye(4))
-        nib.save(img, os.path.join(path, file[-8:-5]+'.nii.gz'))
+
+    nrrd_to_niigz(path, files)
 
 if __name__ == "__main__":
     main()
