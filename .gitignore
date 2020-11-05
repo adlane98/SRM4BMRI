@@ -284,3 +284,7 @@ TSWLatexianTemp*
 MultiscaleSRModel/__pycache__/
 
 *.h5
+
+*.nii
+
+MultiscaleSRModel/venv361/
