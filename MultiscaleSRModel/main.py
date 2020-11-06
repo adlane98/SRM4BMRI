@@ -1,13 +1,10 @@
 import numpy as np
 import scipy.ndimage
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow import pad
-import tensorflow.keras.backend as K
 from tensorflow.keras.initializers import RandomNormal, Constant
 from tensorflow.keras.layers import Conv3D, ReLU, Input, Add, Flatten
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
 import h5py
 import SimpleITK as sitk
 
@@ -41,9 +38,6 @@ def SRReCNN3D(input_shape, depth, nb_filters, kernel_size, padding, to_json=Fals
 
     add_layer = Add()([input_layer, layer])
 
-    #flat_layer = Flatten()(add_layer)
-    #model = Model(input_layer, flat_layer)
-
     model = Model(input_layer, add_layer)
 
     if to_json:
@@ -53,17 +47,26 @@ def SRReCNN3D(input_shape, depth, nb_filters, kernel_size, padding, to_json=Fals
     return model
 
 
+def read_hdf5_files(source_file):
+    with open(source_file) as sf:
+        hdf5_name_files = sf.readlines()
+        data = []
+        labels = []
+        for hdf5_name_file in hdf5_name_files:
+            with h5py.File(hdf5_name_file[:-1]) as hdf5data:
+                data.extend(list(hdf5data[list(hdf5data.keys())[0]]))
+                labels.extend(list(hdf5data[list(hdf5data.keys())[1]]))
+
+    return np.asarray(data), np.asarray(labels)
+
+
 def launch_training(
-        hdf5file, depth, nb_filters, kernel_size, padding
+        hdf5_source_file, depth, nb_filters, kernel_size, padding
 ):
-    with h5py.File(hdf5file) as hdf5data:
-        data = list(hdf5data[list(hdf5data.keys())[0]])
-        labels = list(hdf5data[list(hdf5data.keys())[1]])
-
-
+    data, labels = read_hdf5_files(hdf5_source_file)
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
-    model.compile(optimizer=AdamLRM(learning_rate=0.0001), loss="mse")
-    history = model.fit(np.asarray(data), np.asarray(labels).reshape(len(labels), ps**3), batch_size=4, epochs=20)
+    model.compile(optimizer=AdamLRM(learning_rate=0.0001), loss="mse", metrics=[psnr_model], run_eagerly=True)
+    history = model.fit(data, labels, batch_size=4, epochs=20)
     plt.figure(figsize=(11, 3))
 
     # affichage de la valeur de la fonction de perte
@@ -82,137 +85,137 @@ def launch_training(
 def psnr_model(y_pred, y_true):
     return tf.image.psnr(y_pred.numpy(), y_true, np.max(y_pred.numpy())).numpy()
 
+
 def psnr(y_pred, y_true):
     return tf.image.psnr(y_pred, y_true, np.max(y_pred))
 
-# Compile the model
-if __name__ == '__main__1':
-    ps = 21
-    model = SRReCNN3D([ps, ps, ps, 1], depth=10, nb_filters=64, kernel_size=3, padding=1)
-    model.compile(optimizer=AdamLRM(learning_rate=0.0001), loss="mse", metrics=[psnr], run_eagerly=True)
 
-    x1 = np.random.random((ps, ps, ps, 1))
-    x2 = np.random.random((ps, ps, ps, 1))
-    # y1 = np.random.random((ps**3))
-    # y2 = np.random.random((ps**3))
-    y1 = np.random.random((ps, ps, ps, 1))
-    y2 = np.random.random((ps, ps, ps, 1))
-    # print(psnr(x1[:, :, :, 0], y1[:, :, :, 0]))
-    history = model.fit(x=np.array([x1, x2]), y=np.array([y1, y2]), batch_size=1)
+def write_nii(array_image, min_range, max_range, name):
+    image_adjust = imadjust3D(array_image, [min_range, max_range])
+    sitk_image = sitk.GetImageFromArray(image_adjust)
+    sitk.WriteImage(sitk_image, name)
 
-    g = model.get_weights()
 
-# HDF5
-if __name__ == '__main__2':
-    ps = 21
-    bs = 64
-    cs = 1
+def generate_input_image(hr_image, blur_std):
+    blurred_image = scipy.ndimage.filters.gaussian_filter(
+        hr_image, sigma=blur_std
+    )
 
-    x1 = np.random.random((bs, ps, ps, ps, cs))
-    y1 = np.random.random((bs, ps, ps, ps, cs))
+    # Downsampling
+    low_resolution_image = scipy.ndimage.zoom(
+        blurred_image,
+        zoom=(1 / float(idxScale) for idxScale in scale),
+        order=order
+    )
+    # write_nii(low_resolution_image, ri_min, ri_max, "lr.nii")
 
-    store2hdf53D("data.h5", x1, y1)
+    # Cubic Interpolation
+    lr_interpolated_image = scipy.ndimage.zoom(
+        low_resolution_image, zoom=scale, order=order
+    )
 
-    with h5py.File("data.h5") as hdf5data:
-        data = list(hdf5data[list(hdf5data.keys())[0]])
-
-    # bs = 8
-    # data_batch = [data[i:i + bs] for i in range(0, len(data), bs)]
-    # print(data_batch)
+    return lr_interpolated_image
 
 
 # Launch training
 if __name__ == '__main__':
     sg = 1
     scale = (2, 2, 2)
-    border = (3, 3, 10)
+    border = (0, 0, 0)
     order = 3
     ps = 21
-    stride = 10
-    hdf5_data = []
-    hdf5_labels = []
+    stride = 5
+    samples = np.inf
 
-    reference_nifti = sitk.ReadImage("1010.nii")
+    image_names = ["1010.nii", "1037.nii"]
 
-    # Get data from NIFTI
-    reference_image = np.swapaxes(
-        sitk.GetArrayFromImage(reference_nifti), 0, 2
-    ).astype('float32')
+    hdf5_file = open("data/hdf5data.txt", "w")
 
-    # Normalization
-    reference_image = imadjust3D(reference_image, [0, 1])
+    for image_name in image_names:
+        data_patches = []
+        labels_patches = []
+        image_path = r"data\\" + image_name
+        reference_nifti = sitk.ReadImage(image_path)
 
-    # ===== Generate input LR image =====
-    # Blurring
-    blur_reference_image = scipy.ndimage.filters.gaussian_filter(reference_image,
-                                                                 sigma=sg)
+        # Get data from NIFTI
+        reference_image = np.swapaxes(
+            sitk.GetArrayFromImage(reference_nifti), 0, 2
+        ).astype('float32')
 
+        ri_max = np.max(reference_image)
+        ri_min = np.min(reference_image)
 
-    # Modcrop to scale factor
-    blur_reference_image = modcrop3D(blur_reference_image, scale)
-    reference_image = modcrop3D(reference_image, scale)
+        # Normalization
+        reference_image = imadjust3D(reference_image, [0, 1])
+        # write_nii(reference_image, ri_min, ri_max, "ref.nii")
 
-    # Downsampling
-    low_resolution_image = scipy.ndimage.zoom(blur_reference_image,
-                                              zoom=(1 / float(idxScale) for idxScale in scale),
-                                              order=order)
+        # Modcrop to scale factor
+        reference_image = modcrop3D(reference_image, scale)
 
-    # Cubic Interpolation
-    interpolated_image = scipy.ndimage.zoom(low_resolution_image,
-                                            zoom=scale,
-                                            order=order)
+        # ===== Generate input LR image =====
+        interpolated_image = generate_input_image(reference_image, blur_std=1)
 
-    # Shave border
-    label_image = shave3D(reference_image, border)
-    data_image = shave3D(interpolated_image, border)
+        # Shave border
+        label_image = shave3D(reference_image, border)
+        data_image = shave3D(interpolated_image, border)
 
-    # Extract 3D patches
-    data_patch = array_to_patches(data_image,
-                                  patch_shape=(ps, ps, ps),
-                                  extraction_step=stride,
-                                  normalization=False)
+        # Extract 3D patches
+        data_patch = array_to_patches(
+            data_image,
+            patch_shape=(ps, ps, ps),
+            extraction_step=stride,
+            normalization=False
+        )
 
-    label_patch = array_to_patches(label_image,
-                                   patch_shape=(ps, ps, ps),
-                                   extraction_step=stride,
-                                   normalization=False)
+        label_patch = array_to_patches(
+            label_image,
+            patch_shape=(ps, ps, ps),
+            extraction_step=stride,
+            normalization=False
+        )
 
-    hdf5_data.append(data_patch)
-    hdf5_labels.append(label_patch)
+        data_patches.append(data_patch)
+        labels_patches.append(label_patch)
 
-    hdf5_data = np.asarray(hdf5_data)
-    hdf5_data = hdf5_data.reshape((-1, ps, ps, ps))
-    hdf5_labels = np.asarray(hdf5_labels).reshape((-1, ps, ps, ps))
+        data_patches = np.asarray(data_patches).reshape((-1, ps, ps, ps))
+        labels_patches = np.asarray(labels_patches).reshape((-1, ps, ps, ps))
 
-    # Add channel axis !
-    hdf5_data = hdf5_data[:, :, :, :, np.newaxis]
-    hdf5_labels = hdf5_labels[:, :, :, :, np.newaxis]
+        # Add channel axis !
+        data_patches = data_patches[:, :, :, :, np.newaxis]
+        labels_patches = labels_patches[:, :, :, :, np.newaxis]
 
-    # Rearrange
-    np.random.seed(0)  # makes the random numbers predictable
-    random_order = np.random.permutation(hdf5_data.shape[0])
-    hdf5_data = hdf5_data[random_order, :, :, :, :]
-    hdf5_labels = hdf5_labels[random_order, :, :, :, :]
+        # Rearrange and select samples
+        np.random.seed(0)  # makes the random numbers predictable
+        random_order = np.random.permutation(
+            min(data_patches.shape[0], samples)
+        )
+        data_patches = data_patches[random_order, :, :, :, :]
+        labels_patches = labels_patches[random_order, :, :, :, :]
 
-    # samples = 162
-    # HDF5Datas = HDF5Datas[:samples, :, :, :, :]
-    # HDF5Labels = HDF5Labels[:samples, :, :, :, :]
+        write_nii(data_patches[657], ri_min, ri_max, f"preproc/{image_name}-patch-data.nii")
+        write_nii(labels_patches[657], ri_min, ri_max, f"preproc/{image_name}-patch-label.nii")
 
-    hdf5name = "1010.h5"
-    start_location = {'dat': (0, 0, 0, 0, 0), 'lab': (0, 0, 0, 0, 0)}
-    current_data_location = store2hdf53D(filename=hdf5name,
-                                         datas=hdf5_data,
-                                         labels=hdf5_labels,
-                                         startloc=start_location,
-                                         chunksz=64)
+        # Writing to HDF5
+        hdf5name = f"data/{image_name}.h5"
+        print(f'*) Writing to HDF5 file : {hdf5name}')
+        StartLocation = {'dat': (0, 0, 0, 0, 0), 'lab': (0, 0, 0, 0, 0)}
+        CurrentDataLocation = store2hdf53D(
+            filename=hdf5name,
+            datas=data_patches,
+            labels=labels_patches,
+            startloc=StartLocation,
+            chunksz=64
+        )
 
-    launch_training(hdf5name, depth=10, nb_filters=64, kernel_size=3, padding=1)
+        hdf5_file.write(hdf5name + "\n")
 
+    hdf5_file.close()
 
-# Test human data
-if __name__ == '__main__4':
-    reference_nifti = sitk.ReadImage("KKI2009-01-MPRAGE.nii")
-
-    # Get data from NIFTI
-    print(sitk.GetArrayFromImage(reference_nifti).shape)
+    launch_training(
+        hdf5_file.name,
+        depth=10,
+        nb_filters=64,
+        kernel_size=3,
+        padding=1
+    )
 

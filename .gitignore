@@ -288,3 +288,11 @@ MultiscaleSRModel/__pycache__/
 *.nii
 
 MultiscaleSRModel/venv361/
+
+MultiscaleSRModel/.ipynb_checkpoints/
+
+MultiscaleSRModel/data/
+
+MultiscaleSRModel/log/
+
+MultiscaleSRModel/logs/
