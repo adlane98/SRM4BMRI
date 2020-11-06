@@ -14,6 +14,10 @@ def nrrd_to_niigz(path, files):
         nib.save(img, os.path.join(path, os.path.basename(file)[:-5]+'.nii.gz'))
 
 def main():
+    """ convert nrrd file in niigz file
+    give the nrrd files repository path in argument
+    it will convert all nrrd files and output it in the same repository
+    """
     if len(sys.argv) != 2:
         raise Exception("need the repository's path")
     

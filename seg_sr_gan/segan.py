@@ -8,6 +8,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 
+"""
+DEAD CODE
+"""
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 WEIGHTS = "weigths"
@@ -36,6 +40,7 @@ def get_patch_of_one(img_data, axis, number):
         raise Exception( "axis compris entre 0 et 2")
 
 def main():
+    "dead code"
     pass
     # nn_weights = os.path.join(WEIGHTS, "Perso_without_data_augmentation")
 

@@ -64,7 +64,11 @@ def visualiser_n_img(list_img : list, axis:int, number:float, *args, **kwargs):
     plt.show()
 
 def main():
-        
+    """
+    given an input image nii gz, an sr image nii gz and a seg image nii gz (path to adapt in the script) show the result
+    given a axe and a position of the ?cut? (to adapt in the script) 
+    *It is better to use ITK SNAP to have a visualisation*
+    """
     seg_out = join(DATA, "cortex.nii.gz")
     sr_out = join(DATA, "SR.nii.gz")
     hr_in = join(DATA, "img3\\010.nii.gz")
