@@ -1,3 +1,16 @@
+## Pycharm
+MultiscaleSRModel/.idea/
+
+## Virtual env
+MultiscaleSRModel/venv/
+
+# Data used
+*.nii
+*.zip
+*.gz
+*.nrrd
+*.npy
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -274,3 +287,19 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+MultiscaleSRModel/__pycache__/
+
+*.h5
+
+*.nii
+
+MultiscaleSRModel/venv361/
+
+MultiscaleSRModel/.ipynb_checkpoints/
+
+MultiscaleSRModel/data/
+
+MultiscaleSRModel/log/
+
+MultiscaleSRModel/logs/
