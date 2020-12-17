@@ -24,11 +24,13 @@ IS_RESTORE = tf.train.latest_checkpoint(params.folder_data) != None
  
 params.show_params()   
 path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train_d'
+path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d'
+
 data_reader = reader.DataReader(path, './data/',
 								'./data/', SHOW_IMAGES=False)
    	 
 # training 
-batch_size = 1024 
+batch_size = 128 
 input = tf.placeholder(tf.float32, (batch_size, data_reader.dim_patch_in_rows,  data_reader.dim_patch_in_cols,
 									params.num_channels), name='input')
 target = tf.placeholder(tf.float32, (batch_size, data_reader.dim_patch_gt_rows, data_reader.dim_patch_gt_cols,
@@ -78,6 +80,8 @@ if IS_RESTORE:
     saver.restore(sess, tf.train.latest_checkpoint(params.folder_data))
     start_epoch = re.findall(r'\d+', tf.train.latest_checkpoint(params.folder_data))
     start_epoch = int(start_epoch[0]) + 1
+
+start_epoch = 24
 
 print('the number of images is: ', data_reader.num_train_images)
 for epoch in range(start_epoch, params.num_epochs):

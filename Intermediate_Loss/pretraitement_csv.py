@@ -10,7 +10,7 @@ import pandas as pd
 # one for the groud truth
 # the other one for the input of the network
 def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, index,images):
-    print("---"+images+"---"+str(index))
+    #print("---"+images+"---"+str(index))
     gt_dics = []
     in_dics = []
     h = img.shape[0]
@@ -61,12 +61,12 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
 # **************************************************
 #                      MAIN
 # Params
-main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train\train_data\3T'
+main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train\train_data\3T'
 dim_patch = 14
 stride = 7
 scale = 2
-f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train\train_data\inputs'
-f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train\train_data\ground_truth'
+f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train\train_data\inputs'
+f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train\train_data\ground_truth'
 index = 0
 
 for images in os.listdir(main_dir):

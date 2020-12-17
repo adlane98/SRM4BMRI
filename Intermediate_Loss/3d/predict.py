@@ -6,7 +6,7 @@
 
 import cv2 as cv
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
  
 import utils
 import params
@@ -113,14 +113,14 @@ def compute_performance_indeces(test_images_gt, test_images):
   
 def read_images(test_path): 
  
-    add_to_path = 'input_hw_d_%d' % scale 
+    #add_to_path = 'input_hw_d_%d' % scale 
         
     test_images_gt = utils.read_all_directory_images_from_directory_test(test_path, add_to_path='original')
     test_images = utils.read_all_directory_images_from_directory_test(test_path, add_to_path=add_to_path)
     
     return test_images_gt, test_images
      
-test_path = 'C:\\Research\\SR\\medical images\\namic\\images-testing\\t1w'  
+test_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_test'
 
 
 use_standard_d = False 
@@ -131,13 +131,15 @@ scale = 2
 is_v2 = True
 
 
-from D_v2 import networks as nets_d
-from HW_v2 import networks as nets_hs
-checkpoint_d = './D_v2/data_ckpt/model.ckpt8'
-checkpoint_h_w = './HW_v2/data_ckpt/model.ckpt37' 
+import networks_d as nets_d
+import networks_hw as nets_hs
+checkpoint_d = './data_ckpt_1512/model.ckpt39'
+checkpoint_h_w = './data_ckpt_d1512/model.ckpt39' 
 
-test_images_gt, test_images = read_images(test_path)  
-compute_performance_indeces(test_images_gt, test_images)
+#test_images_gt, test_images = read_images(test_path)  
+test_images_gt = utils.read_all_directory_images_from_directory_test(test_path, add_to_path='original')
+
+#compute_performance_indeces(test_images_gt, test_images)
 
 
 

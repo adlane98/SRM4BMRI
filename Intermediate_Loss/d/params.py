@@ -18,14 +18,14 @@ folder_base_name = '../cnn-3d/3d-images'
 # cv.INTER_LANCZOS4
 # cv.INTER_NEAREST
 interpolation_method = cv.INTER_LANCZOS4 
-num_epochs = 45
+num_epochs = 40
 LOSS = L1_LOSS
-learning_rate = 1e-3
+learning_rate = 1e-4
 dim_patch = '_d_14_7_%d' % scale
 dim_patch_2 = '_d_2_1_14_7_%d' % scale 
 kernel_size = 5 
 image_ext = 'png'
-folder_data = './data_ckpt_d/'
+folder_data = './data_ckpt_d1712/'
 layers = 8
 num_channels = 1
 tf_version = 1.02
