@@ -1,4 +1,5 @@
-from datetime import datetime
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import image, pad
@@ -7,10 +8,7 @@ from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
 
 from adamLRM import AdamLRM
-
-
-def get_time():
-    return datetime.now().strftime('%Y%m%d-%H%M%S')
+from utils import get_time, read_hdf5_files
 
 
 def psnr_model(y_pred, y_true):
@@ -76,6 +74,30 @@ def launch_training(
     )
 
     return model, history
+
+
+def get_source_file(filename):
+    if filename is not None:
+        return filename
+    else:
+        hdf5_files = Path("hdf5\\").glob("*.txt")
+        hdf5_files = sorted(hdf5_files)
+        return f"hdf5\\{hdf5_files[-1].name}"
+
+
+def launch_training_hdf5(
+        hdf5_source_file,
+        depth=10,
+        nb_filters=64,
+        kernel_size=3,
+        padding=1,
+        epochs=20,
+        batch_size=4,
+        adam_lr=0.0001
+):
+    hdf5_source_file = get_source_file(hdf5_source_file)
+    data, labels = read_hdf5_files(hdf5_source_file)
+    return launch_training(data, labels, depth, nb_filters, kernel_size, padding, epochs, batch_size, adam_lr)
 
 
 def draw_loss_and_psnr(history):

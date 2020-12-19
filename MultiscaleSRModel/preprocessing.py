@@ -10,7 +10,6 @@ def downsample(
         img_path,
         blur_sigma=1,
         downsampling_scale=(2, 2, 2),
-        shaving_border=(0, 0, 0),
         interpolation_order=3,
 ):
 
@@ -34,19 +33,11 @@ def downsample(
     # Interpolation
     interpolated_image = zoom(
         low_resolution_image,
-        zoom = downsampling_scale,
-        order = interpolation_order
+        zoom=downsampling_scale,
+        order=interpolation_order
     )
 
-    # Shaving
-    label_image = shave3D(reference_image, shaving_border)
-    data_image = shave3D(interpolated_image, shaving_border)
-
-    # Add channel axis
-    data_image = data_image[:, :, :, np.newaxis]
-    label_image = label_image[:, :, :, np.newaxis]
-
-    return data_image, label_image
+    return interpolated_image, reference_image
 
 
 def make_patches(
@@ -70,10 +61,14 @@ def make_patches(
         normalization=False
     )
 
+    # Add channel axis
+    data_patches = data_patches[:, :, :, :, np.newaxis]
+    labels_patches = labels_patches[:, :, :, :, np.newaxis]
+
     np.random.seed(0)  # makes the random numbers predictable
     random_order = np.random.permutation(data_patches.shape[0])
 
     data_patches = data_patches[random_order, :, :, :, :]
     labels_patches = labels_patches[random_order, :, :, :, :]
 
-    return data_patches[max_number_patches:, :, :, :, :], labels_patches[max_number_patches:, :, :, :, :]
+    return data_patches[:max_number_patches, :, :, :, :], labels_patches[:max_number_patches, :, :, :, :]
