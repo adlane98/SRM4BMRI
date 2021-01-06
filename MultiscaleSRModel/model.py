@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
 
 from adamLRM import AdamLRM
-from utils import get_time, read_hdf5_files, write_metadata
+from utils import get_time, read_hdf5_files, write_metadata, get_metadata_path, get_hdf5_path
 
 
 def psnr_model(y_pred, y_true):
@@ -58,7 +58,7 @@ def launch_training(
 ):
     launching_time = get_time()
 
-    json_file_name = f"metadata\\{launching_time}_training_parameter.json"
+    json_file_name = fr"{get_metadata_path()}{launching_time}_training_parameter.json"
     write_metadata(
         json_file_name,
         {
@@ -89,7 +89,7 @@ def launch_training(
         epochs=epochs
     )
 
-    weights_file_name = f"metadata\\{launching_time}_weights.h5"
+    weights_file_name = fr"{get_metadata_path()}{launching_time}_weights.h5"
     model.save_weights(weights_file_name, save_format="hdf5")
     draw_loss_and_psnr(history, launching_time)
 
@@ -100,9 +100,9 @@ def get_source_file(filename):
     if filename is not None:
         return filename
     else:
-        hdf5_files = Path("hdf5\\").glob("*.txt")
+        hdf5_files = Path(get_hdf5_path()).glob("*.txt")
         hdf5_files = sorted(hdf5_files)
-        return f"hdf5\\{hdf5_files[-1].name}"
+        return fr"{get_hdf5_path()}{hdf5_files[-1].name}"
 
 
 def launch_training_hdf5(
@@ -145,4 +145,4 @@ def draw_loss_and_psnr(history, launching_time):
     plt.plot(history.epoch, history.history['psnr_model'])
     plt.title('psnr')
 
-    plt.savefig(fr"metadata\\loss-psnr-curves-{launching_time}")
+    plt.savefig(fr"{get_metadata_path()}loss-psnr-curves-{launching_time}")

@@ -36,3 +36,20 @@ def write_metadata(filename, metadata):
     with open(filename, "w") as json_file:
         json.dump(metadata, json_file, indent=4)
 
+
+def get_data_path():
+    with open("pathes.json", "r") as json_file:
+        pathes = json.load(json_file)
+    return pathes["data"]
+
+
+def get_metadata_path():
+    with open("pathes.json", "r") as json_file:
+        pathes = json.load(json_file)
+    return pathes["metadata"]
+
+
+def get_hdf5_path():
+    with open("pathes.json", "r") as json_file:
+        pathes = json.load(json_file)
+    return pathes["hdf5"]
