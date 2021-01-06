@@ -15,7 +15,6 @@ def downsample(
 
     reference_nifti = sitk.ReadImage(img_path)
     reference_image = sitk.GetArrayFromImage(reference_nifti)
-
     reference_image = np.swapaxes(reference_image, 0, 2).astype('float32')
 
     # Normalisation and modcrop

@@ -8,14 +8,14 @@ from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
 
 from adamLRM import AdamLRM
-from utils import get_time, read_hdf5_files
+from utils import get_time, read_hdf5_files, write_metadata
 
 
 def psnr_model(y_pred, y_true):
     return image.psnr(y_pred.numpy(), y_true, np.max(y_pred.numpy())).numpy()
 
 
-def SRReCNN3D(input_shape, depth, nb_filters, kernel_size, padding, to_json=False):
+def SRReCNN3D(input_shape, depth, nb_filters, kernel_size, padding):
     input_layer = Input(input_shape)
     layer = input_layer
 
@@ -41,10 +41,6 @@ def SRReCNN3D(input_shape, depth, nb_filters, kernel_size, padding, to_json=Fals
 
     model = Model(input_layer, final_layer)
 
-    if to_json:
-        with open(f"model-{get_time()}.js", "w") as json_model:
-            json_model.write(model.to_json())
-
     return model
 
 
@@ -57,8 +53,28 @@ def launch_training(
         padding=1,
         epochs=20,
         batch_size=4,
-        adam_lr=0.0001
+        adam_lr=0.0001,
+        hdf5_source_file=None
 ):
+    launching_time = get_time()
+
+    json_file_name = f"metadata\\{launching_time}_training_parameter.json"
+    write_metadata(
+        json_file_name,
+        {
+            "hdf5_source_file": hdf5_source_file,
+            "depth": depth,
+            "nb_filters": nb_filters,
+            "kernel_size": kernel_size,
+            "padding": padding,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "adam_lr": adam_lr,
+            "nb_samples": data.shape[0],
+            "sample_dimension": data.shape[1:]
+        },
+    )
+
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
     model.compile(
         optimizer=AdamLRM(learning_rate=adam_lr),
@@ -72,6 +88,10 @@ def launch_training(
         batch_size=batch_size,
         epochs=epochs
     )
+
+    weights_file_name = f"metadata\\{launching_time}_weights.h5"
+    model.save_weights(weights_file_name, save_format="hdf5")
+    draw_loss_and_psnr(history, launching_time)
 
     return model, history
 
@@ -97,10 +117,22 @@ def launch_training_hdf5(
 ):
     hdf5_source_file = get_source_file(hdf5_source_file)
     data, labels = read_hdf5_files(hdf5_source_file)
-    return launch_training(data, labels, depth, nb_filters, kernel_size, padding, epochs, batch_size, adam_lr)
+
+    return launch_training(
+        data,
+        labels,
+        depth,
+        nb_filters,
+        kernel_size,
+        padding,
+        epochs,
+        batch_size,
+        adam_lr,
+        hdf5_source_file,
+    )
 
 
-def draw_loss_and_psnr(history):
+def draw_loss_and_psnr(history, launching_time):
     plt.figure(figsize=(11, 3))
 
     # Plot loss function
@@ -113,4 +145,4 @@ def draw_loss_and_psnr(history):
     plt.plot(history.epoch, history.history['psnr_model'])
     plt.title('psnr')
 
-    plt.savefig(f"loss-psnr-curve-{get_time()}")
+    plt.savefig(fr"metadata\\loss-psnr-curves-{launching_time}")

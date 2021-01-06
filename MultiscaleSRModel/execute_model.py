@@ -9,7 +9,7 @@ from pathlib import Path
 from model import launch_training_hdf5
 from preprocessing import downsample, make_patches
 from store2hdf5 import store2hdf53D
-from utils import get_time
+from utils import get_time, write_metadata
 
 
 def prepare_data(
@@ -60,22 +60,19 @@ def prepare_data(
             label = np.concatenate(label, axis=0)
             store2hdf53D(hdf5_file_name, data, label, create=True)
 
-    json_file_name = f"metahdf5\\{time}_preproc_parameter.json"
-    os.makedirs(os.path.dirname(json_file_name), exist_ok=True)
-    with open(json_file_name, "w") as json_file:
-        json.dump(
-            {
-                "images": images_path,
-                "blur": blur_sigma,
-                "scales": scales,
-                "interpolation_order": interpolation_order,
-                "patch_size": patch_size,
-                "patch_stride": patch_stride,
-                "max_number_patches_per_subject": max_number_patches_per_subject
-            },
-            json_file,
-            indent=4
-        )
+    json_file_name = f"metadata\\{time}_preproc_parameter.json"
+    write_metadata(
+        json_file_name,
+        {
+           "images": images_path,
+           "blur": blur_sigma,
+           "scales": scales,
+           "interpolation_order": interpolation_order,
+           "patch_size": patch_size,
+           "patch_stride": patch_stride,
+           "max_number_patches_per_subject": max_number_patches_per_subject
+        },
+    )
 
 
 def parsing():
@@ -88,7 +85,7 @@ def parsing():
 
     # Downsampling args
     parser.add_argument("--mri", type=str, help="Path for one MRI.",
-                       action="append")
+                        action="append")
     parser.add_argument("--sigma",
                         help="Standard deviation (sigma) of "
                              "Gaussian blur (default=1)",
@@ -151,7 +148,7 @@ def parsing():
                 args.scale[idx] = make_tuple(args.scale[idx])
                 if np.isscalar(args.scale[idx]):
                     args.scale[idx] = (
-                    args.scale[idx], args.scale[idx], args.scale[idx])
+                        args.scale[idx], args.scale[idx], args.scale[idx])
                 else:
                     if len(args.scale[idx]) != 3:
                         raise AssertionError("Not support this scale factor !")
@@ -164,6 +161,7 @@ def parsing():
 
 if __name__ == '__main__':
     args = parsing()
+
     if args.prepare:
         prepare_data(
             args.mri,
