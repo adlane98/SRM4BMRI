@@ -79,6 +79,7 @@ if IS_RESTORE:
     saver.restore(sess,tf.train.latest_checkpoint(params.folder_data))
     start_epoch = re.findall(r'\d+', tf.train.latest_checkpoint(params.folder_data))
     start_epoch = int(start_epoch[0]) + 1
+start_epoch = 40
 
 print('the number of images is: ', data_reader.num_train_images)
 print("we start at ",start_epoch," epoch")

@@ -99,8 +99,8 @@ img_path = test_path+r'\Landman_3253_20110818_366806254_301_WIP_MPRAGE_SENSE_MPR
 model_path = r'.\data_ckpt\model.ckpt39'
 scale = 2
 
-test_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train\train_data\3T'
-img_path = test_path+r'\1010.nii'
+test_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
+img_path = test_path+r'\3935.nii'
 model_path = r'.\data_ckpt_15122\model.ckpt39'
 model_path2 = r'.\data_ckpt_d1712\model.ckpt39'
 
@@ -139,27 +139,23 @@ tf.reset_default_graph()
 
 
 
-i = 2
-#plt.figure()
-#print(test_images.shape)
-#plt.imshow(test_images[:,:,i],cmap='gray_r', vmin=0, vmax=255)
-"""
-plt.figure()
-print(data.shape)
-plt.imshow(test[i,:,:],cmap='gray_r', vmin=0, vmax=255)
-plt.figure()
-print(image_final.shape)
-plt.imshow(image_final[i],cmap='gray_r', vmin=0, vmax=255)
-
-#print(test_images_gt[0].shape)
-#plt.imshow(test_images_gt[0][i],cmap='gray_r', vmin=0, vmax=255)
-plt.show()"""
+i = 60
 
 image_final = np.swapaxes(image_final,2,1)
 image_final = np.swapaxes(image_final,2,0)
 
+plt.figure()
+print(data.shape)
+plt.imshow(data[:,:,i],cmap='gray_r', vmin=0, vmax=255)
+
+plt.figure()
+print(image_final.shape)
+plt.imshow(image_final[:,:,i*2],cmap='gray_r', vmin=0, vmax=255)
+
+
 print("SUCCES")
 print(data.shape," to ",image_final.shape)
+plt.show()
 
 # Visualiaze luminosity
 #flat = image_final.flatten()
@@ -169,5 +165,6 @@ print(data.shape," to ",image_final.shape)
 #plt.show()
 
 img = nib.Nifti1Image(image_final,None)
-print("Save to: /build/marmouset_sr.nii.gz")
-nib.save(img,'./build/marmouset_sr.nii.gz')
+file_name = "marmouset_sr3936.nii.gz"
+print("Save to: "+file_name)
+nib.save(img,file_name)
