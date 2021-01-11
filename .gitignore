@@ -305,4 +305,6 @@ MultiscaleSRModel/log/
 MultiscaleSRModel/logs/
 MultiscaleSRModel/hdf5/
 
-MultiscaleSRModel/metahdf5/
+MultiscaleSRModel/metadata/
+
+MultiscaleSRModel/preproc/

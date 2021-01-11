@@ -9,7 +9,7 @@ from pathlib import Path
 from model import launch_training_hdf5
 from preprocessing import downsample, make_patches
 from store2hdf5 import store2hdf53D
-from utils import get_time, write_metadata
+from utils import get_time, write_metadata, get_metadata_path, get_hdf5_path
 
 
 def prepare_data(
@@ -33,12 +33,12 @@ def prepare_data(
 
     time = get_time()
 
-    list_hdf5_file_name = fr"hdf5\\{time}.txt"
+    list_hdf5_file_name = fr"{get_hdf5_path()}{time}.txt"
     os.makedirs(os.path.dirname(list_hdf5_file_name), exist_ok=True)
     with open(list_hdf5_file_name, "w") as lfh:
         for i, image_path in enumerate(images_path):
-            hdf5_file_name = fr"hdf5\\{time}_{Path(image_path).stem}.h5"
-            lfh.write(f"{hdf5_file_name}\n")
+            hdf5_file_name = fr"{get_hdf5_path()}{time}_{Path(image_path).stem}.h5"
+            lfh.write(fr"{hdf5_file_name}\n")
 
             data, label = [], []
             for j, scale in enumerate(scales):
@@ -60,7 +60,7 @@ def prepare_data(
             label = np.concatenate(label, axis=0)
             store2hdf53D(hdf5_file_name, data, label, create=True)
 
-    json_file_name = f"metadata\\{time}_preproc_parameter.json"
+    json_file_name = fr"{get_metadata_path()}{time}_preproc_parameter.json"
     write_metadata(
         json_file_name,
         {
