@@ -7,7 +7,7 @@ from tensorflow.keras.initializers import RandomNormal, Constant
 from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
 
-from adamLRM import AdamLRM
+from utils.adamLRM import AdamLRM
 from utils import get_time, read_hdf5_files, write_metadata, get_metadata_path, get_hdf5_path
 
 

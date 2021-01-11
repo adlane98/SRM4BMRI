@@ -1,9 +1,13 @@
+import os
+
 import SimpleITK as sitk
 import numpy as np
 from scipy.ndimage import gaussian_filter, zoom
 
-from patches import array_to_patches
-from utils3D import imadjust3D, shave3D, modcrop3D
+from utils.patches import array_to_patches
+from utils.store2hdf5 import store2hdf53D
+from utils import write_metadata, get_hdf5_path, get_time, get_metadata_path
+from utils.utils3D import imadjust3D, modcrop3D
 
 
 def downsample(
@@ -71,3 +75,66 @@ def make_patches(
     labels_patches = labels_patches[random_order, :, :, :, :]
 
     return data_patches[:max_number_patches, :, :, :, :], labels_patches[:max_number_patches, :, :, :, :]
+
+
+def prepare_data(
+        images_path,
+
+        # Downsample arguments
+        blur_sigma=1,
+        scales=None,
+        interpolation_order=3,
+
+        # Patches argument
+        patch_size=21,
+        patch_stride=10,
+        max_number_patches_per_subject=3200,
+):
+    if len(images_path) == 0:
+        raise Exception("No image to prepare.")
+
+    if scales is None:
+        scales = [(2, 2, 2)]
+
+    time = get_time()
+
+    list_hdf5_file_name = fr"{get_hdf5_path()}{time}.txt"
+    os.makedirs(os.path.dirname(list_hdf5_file_name), exist_ok=True)
+    with open(list_hdf5_file_name, "w") as lfh:
+        for i, image_path in enumerate(images_path):
+            hdf5_file_name = fr"{get_hdf5_path()}{time}_{Path(image_path).stem}.h5"
+            lfh.write(fr"{hdf5_file_name}\n")
+
+            data, label = [], []
+            for j, scale in enumerate(scales):
+                data_ds, label_ds = downsample(
+                    image_path, blur_sigma, scale, interpolation_order
+                )
+                data_patches, label_patches = make_patches(
+                    data_ds,
+                    label_ds,
+                    patch_size,
+                    patch_stride,
+                    max_number_patches_per_subject
+                )
+
+                data.append(data_patches)
+                label.append(label_patches)
+
+            data = np.concatenate(data, axis=0)
+            label = np.concatenate(label, axis=0)
+            store2hdf53D(hdf5_file_name, data, label, create=True)
+
+    json_file_name = fr"{get_metadata_path()}{time}_preproc_parameter.json"
+    write_metadata(
+        json_file_name,
+        {
+           "images": images_path,
+           "blur": blur_sigma,
+           "scales": scales,
+           "interpolation_order": interpolation_order,
+           "patch_size": patch_size,
+           "patch_stride": patch_stride,
+           "max_number_patches_per_subject": max_number_patches_per_subject
+        },
+    )

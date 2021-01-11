@@ -1,78 +1,10 @@
 import argparse
 from ast import literal_eval as make_tuple
-import json
-import os
 
 import numpy as np
-from pathlib import Path
 
 from model import launch_training_hdf5
-from preprocessing import downsample, make_patches
-from store2hdf5 import store2hdf53D
-from utils import get_time, write_metadata, get_metadata_path, get_hdf5_path
-
-
-def prepare_data(
-        images_path,
-
-        # Downsample arguments
-        blur_sigma=1,
-        scales=None,
-        interpolation_order=3,
-
-        # Patches argument
-        patch_size=21,
-        patch_stride=10,
-        max_number_patches_per_subject=3200,
-):
-    if len(images_path) == 0:
-        raise Exception("No image to prepare.")
-
-    if scales is None:
-        scales = [(2, 2, 2), (3, 3, 3)]
-
-    time = get_time()
-
-    list_hdf5_file_name = fr"{get_hdf5_path()}{time}.txt"
-    os.makedirs(os.path.dirname(list_hdf5_file_name), exist_ok=True)
-    with open(list_hdf5_file_name, "w") as lfh:
-        for i, image_path in enumerate(images_path):
-            hdf5_file_name = fr"{get_hdf5_path()}{time}_{Path(image_path).stem}.h5"
-            lfh.write(fr"{hdf5_file_name}\n")
-
-            data, label = [], []
-            for j, scale in enumerate(scales):
-                data_ds, label_ds = downsample(
-                    image_path, blur_sigma, scale, interpolation_order
-                )
-                data_patches, label_patches = make_patches(
-                    data_ds,
-                    label_ds,
-                    patch_size,
-                    patch_stride,
-                    max_number_patches_per_subject
-                )
-
-                data.append(data_patches)
-                label.append(label_patches)
-
-            data = np.concatenate(data, axis=0)
-            label = np.concatenate(label, axis=0)
-            store2hdf53D(hdf5_file_name, data, label, create=True)
-
-    json_file_name = fr"{get_metadata_path()}{time}_preproc_parameter.json"
-    write_metadata(
-        json_file_name,
-        {
-           "images": images_path,
-           "blur": blur_sigma,
-           "scales": scales,
-           "interpolation_order": interpolation_order,
-           "patch_size": patch_size,
-           "patch_stride": patch_stride,
-           "max_number_patches_per_subject": max_number_patches_per_subject
-        },
-    )
+from preprocessing import prepare_data
 
 
 def parsing():
