@@ -18,7 +18,7 @@ folder_base_name = '../cnn-3d/3d-images'
 # cv.INTER_LANCZOS4
 # cv.INTER_NEAREST
 interpolation_method = cv.INTER_LANCZOS4 
-num_epochs = 40
+num_epochs = 41
 LOSS = L1_LOSS
 learning_rate = 1e-4
 dim_patch = '_d_14_7_%d' % scale
