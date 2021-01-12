@@ -61,12 +61,12 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
 # **************************************************
 #                      MAIN
 # Params
-main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_x4\train_data\3T'
-dim_patch = 28
+main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\3T'
+dim_patch = 14
 stride = 7
-scale = 4
-f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_x4\train_data\inputs'
-f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_x4\train_data\ground_truth'
+scale = 2
+f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\inputs'
+f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\ground_truth'
 index = 0
 
 for images in os.listdir(main_dir):
@@ -75,8 +75,8 @@ for images in os.listdir(main_dir):
     if (len(imgs.shape) != 3):
         print('Input image is not T1 weighted.\nSkipping this image...')
         continue
-    for i in range(imgs.shape[0]):
-        index = extract_patch_and_save(fdata[i,:,:],dim_patch,stride,scale,f_in,f_gt,index,images)
+    for i in range(imgs.shape[-1]):
+        index = extract_patch_and_save(fdata[:,:,i],dim_patch,stride,scale,f_in,f_gt,index,images)
 
     # for i in range(2):
     #     index = extract_patch_and_save(fdata[:,:,i],dim_patch,stride,scale,f_in,f_gt,index)

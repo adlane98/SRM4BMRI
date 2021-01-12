@@ -60,12 +60,12 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
 #                      MAIN
 # Params
 # main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train\train_data\7T'
-main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_x4\train_data\3T'
-dim_patch = 28
+main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_2\train_data\3T'
+dim_patch = 14
 stride = 7
 scale = 2
-f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_x4\train_data\inputs'
-f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_x4\train_data\ground_truth'
+f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_2\train_data\inputs'
+f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_2\train_data\ground_truth'
 index = 0
 
 for images in os.listdir(main_dir):

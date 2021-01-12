@@ -24,8 +24,8 @@ IS_RESTORE = tf.train.latest_checkpoint(params.folder_data) != None
  
 params.show_params()   
 path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train_d'
-path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d'
-
+path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_2'
+#path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_x4'
 data_reader = reader.DataReader(path, './data/',
 								'./data/', SHOW_IMAGES=False)
    	 
@@ -81,7 +81,7 @@ if IS_RESTORE:
     start_epoch = re.findall(r'\d+', tf.train.latest_checkpoint(params.folder_data))
     start_epoch = int(start_epoch[0]) + 1
 
-start_epoch = 40
+start_epoch = 20
 
 print('the number of images is: ', data_reader.num_train_images)
 for epoch in range(start_epoch, params.num_epochs):

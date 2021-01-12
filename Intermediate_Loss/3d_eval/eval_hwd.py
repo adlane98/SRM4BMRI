@@ -165,6 +165,6 @@ plt.show()
 #plt.show()
 
 img = nib.Nifti1Image(image_final,None)
-file_name = "marmouset_sr3936.nii.gz"
+file_name = "marmouset_sr3937.nii.gz"
 print("Save to: "+file_name)
 nib.save(img,file_name)
