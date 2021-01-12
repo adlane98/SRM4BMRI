@@ -5,6 +5,7 @@ import numpy as np
 
 from model import launch_training_hdf5
 from preprocessing import prepare_data
+from test import launch_testing
 
 
 def parsing():
@@ -13,7 +14,8 @@ def parsing():
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--prepare", help="Prepare data", action="store_true")
-    group.add_argument("--launch", help="Launch training", action="store_true")
+    group.add_argument("--train", help="Launch training", action="store_true")
+    group.add_argument("--test", help="Launch testing", action="store_true")
 
     # Downsampling args
     parser.add_argument("--mri", type=str, help="Path for one MRI.",
@@ -70,6 +72,21 @@ def parsing():
                         help="Indicates Adam learning rate (default=0.0001)",
                         type=float, default=0.0001)
 
+
+    # Testing
+    parser.add_argument("--model",
+                        help="Path of the trained model to test",
+                        type=str, default=None)
+    parser.add_argument("--testinput",
+                        help="Folder of images to test",
+                        type=str, default=None)
+    parser.add_argument("--output",
+                        help="Folder where to store outputs Nifti files",
+                        type=str, default=None)
+    parser.add_argument("--downsample",
+                        help="Indicates if a downsample is needed",
+                        action="store_true")
+
     args = parser.parse_args()
 
     if args.prepare:
@@ -104,7 +121,7 @@ if __name__ == '__main__':
             patch_stride=args.stride,
             max_number_patches_per_subject=args.samples
         )
-    else:
+    elif args.train:
         launch_training_hdf5(
             args.input,
             depth=args.layers,
@@ -114,4 +131,14 @@ if __name__ == '__main__':
             epochs=args.epochs,
             batch_size=args.batch,
             adam_lr=args.adam
+        )
+    else:
+        launch_testing(
+            path_model=args.model,
+            input_folder=args.testinput,
+            output_folder=args.output,
+            preproc=args.downsample,
+            blur_sigma=args.sigma,
+            scales=args.scale,
+            interpolation_order=args.order,
         )

@@ -41,36 +41,35 @@ def load_input_preproc(
     return image[np.newaxis, :, :, :, np.newaxis]
 
 
-def launching_test(
+def launch_testing(
         path_model,
-        input_pathes,
-        output_path=None,
+        input_folder,
+        output_folder=None,
         preproc=False,
         blur_sigma=1,
-        downsampling_scale=(2, 2, 2),
+        scales=(2, 2, 2),
         interpolation_order=3
 ):
     model = load_model(path_model)
+    input_pathes = list(Path(input_folder).glob("*.nii*"))
+    input_pathes = [str(p) for p in input_pathes]
     for input_path in input_pathes:
         if preproc:
             test_input = load_input_preproc(
-                input_path, blur_sigma, downsampling_scale, interpolation_order
+                input_path, blur_sigma, scales, interpolation_order
             )
         else:
             test_input = load_input(input_path)
 
         output = model.predict(test_input)
 
-        write_output(input_path, output, output_path)
+        write_output(input_path, output, output_folder)
 
 
 if __name__ == '__main__':
-    launching_test(
+    launch_testing(
         r"D:\OneDrive\Bureau\20210106-205104_model",
-        [
-            r"D:\Projet\SRM4BMRI\MultiscaleSRModel\data\1010.nii",
-            r"D:\Projet\SRM4BMRI\MultiscaleSRModel\data\1380.nii"
-        ],
+        r"D:\Projet\SRM4BMRI\MultiscaleSRModel\data2",
         r"D:\Projet\SRM4BMRI\MultiscaleSRModel\outputs",
         preproc=True
     )
