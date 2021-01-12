@@ -18,8 +18,8 @@ def parsing():
     group.add_argument("--test", help="Launch testing", action="store_true")
 
     # Downsampling args
-    parser.add_argument("--mri", type=str, help="Path for one MRI.",
-                        action="append")
+    parser.add_argument("--mri", help="Folder where are stored MRI files",
+                        type=str)
     parser.add_argument("--sigma",
                         help="Standard deviation (sigma) of "
                              "Gaussian blur (default=1)",
@@ -71,7 +71,6 @@ def parsing():
     parser.add_argument("--adam",
                         help="Indicates Adam learning rate (default=0.0001)",
                         type=float, default=0.0001)
-
 
     # Testing
     parser.add_argument("--model",

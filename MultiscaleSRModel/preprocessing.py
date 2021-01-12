@@ -96,6 +96,9 @@ def prepare_data(
     if len(images_path) == 0:
         raise Exception("No image to prepare.")
 
+    images_path = list(Path(images_path).glob("*.nii*"))
+    images_path = [str(p) for p in images_path]
+
     if scales is None:
         scales = [(2, 2, 2)]
 
@@ -106,7 +109,7 @@ def prepare_data(
     with open(list_hdf5_file_name, "w") as lfh:
         for i, image_path in enumerate(images_path):
             hdf5_file_name = fr"{get_path('hdf5')}{time}_{Path(image_path).stem}.h5"
-            lfh.write(fr"{hdf5_file_name}\n")
+            lfh.write(f"{hdf5_file_name}\n")
 
             data, label = [], []
             for j, scale in enumerate(scales):
