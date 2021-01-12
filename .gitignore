@@ -303,3 +303,8 @@ MultiscaleSRModel/data/
 MultiscaleSRModel/log/
 
 MultiscaleSRModel/logs/
+MultiscaleSRModel/hdf5/
+
+MultiscaleSRModel/metadata/
+
+MultiscaleSRModel/preproc/
