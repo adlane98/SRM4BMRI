@@ -27,7 +27,7 @@ IS_RESTORE = tf.train.latest_checkpoint(params.folder_data) is not None
 
 params.show_params()   
 #path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train'
-path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train'
+path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2'
 
 data_reader = reader.DataReader(path, './data/', './data/')
 
@@ -79,6 +79,9 @@ if IS_RESTORE:
     saver.restore(sess,tf.train.latest_checkpoint(params.folder_data))
     start_epoch = re.findall(r'\d+', tf.train.latest_checkpoint(params.folder_data))
     start_epoch = int(start_epoch[0]) + 1
+else:
+	print("===========NEW MODEL")
+start_epoch = 20
 
 print('the number of images is: ', data_reader.num_train_images)
 print("we start at ",start_epoch," epoch")
