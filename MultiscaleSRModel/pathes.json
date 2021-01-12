@@ -1,6 +1,6 @@
 {
-    "metadata": "metadata\\",
-    "hdf5": "hdf5\\",
-    "data": "data\\",
-    "outputs": "outputs\\"
+    "metadata": "/projets/srm4bmri/srrecnn/metadata/",
+    "hdf5": "/projets/srm4bmri/srrecnn/hdf5_data/",
+    "data": "/projets/srm4bmri/originals/marmoset_small/",
+    "outputs": "/projets/srm4bmri/srrecnn/outputs/"
 }
