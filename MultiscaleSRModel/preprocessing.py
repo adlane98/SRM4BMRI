@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import SimpleITK as sitk
 import numpy as np
@@ -6,19 +7,21 @@ from scipy.ndimage import gaussian_filter, zoom
 
 from utils.patches import array_to_patches
 from utils.store2hdf5 import store2hdf53D
-from utils import write_metadata, get_hdf5_path, get_time, get_metadata_path
+from utils.utils import write_metadata, get_path, get_time
 from utils.utils3D import imadjust3D, modcrop3D
 
 
 def downsample(
-        img_path,
+        image,
         blur_sigma=1,
         downsampling_scale=(2, 2, 2),
         interpolation_order=3,
 ):
-
-    reference_nifti = sitk.ReadImage(img_path)
-    reference_image = sitk.GetArrayFromImage(reference_nifti)
+    if image is str or image is Path:
+        reference_nifti = sitk.ReadImage(image)
+        reference_image = sitk.GetArrayFromImage(reference_nifti)
+    else:
+        reference_image = image
     reference_image = np.swapaxes(reference_image, 0, 2).astype('float32')
 
     # Normalisation and modcrop
@@ -98,11 +101,11 @@ def prepare_data(
 
     time = get_time()
 
-    list_hdf5_file_name = fr"{get_hdf5_path()}{time}.txt"
+    list_hdf5_file_name = fr"{get_path('hdf5')}{time}.txt"
     os.makedirs(os.path.dirname(list_hdf5_file_name), exist_ok=True)
     with open(list_hdf5_file_name, "w") as lfh:
         for i, image_path in enumerate(images_path):
-            hdf5_file_name = fr"{get_hdf5_path()}{time}_{Path(image_path).stem}.h5"
+            hdf5_file_name = fr"{get_path('hdf5')}{time}_{Path(image_path).stem}.h5"
             lfh.write(fr"{hdf5_file_name}\n")
 
             data, label = [], []
@@ -125,7 +128,7 @@ def prepare_data(
             label = np.concatenate(label, axis=0)
             store2hdf53D(hdf5_file_name, data, label, create=True)
 
-    json_file_name = fr"{get_metadata_path()}{time}_preproc_parameter.json"
+    json_file_name = fr"{get_path('metadata')}{time}_preproc_parameter.json"
     write_metadata(
         json_file_name,
         {
