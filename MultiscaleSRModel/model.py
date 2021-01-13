@@ -90,7 +90,9 @@ def launch_training(
     )
 
     weights_file_name = fr"{get_path('metadata')}{launching_time}_weights.h5"
+    model_file_name = fr"{get_path('metadata')}{launching_time}_model"
     model.save_weights(weights_file_name, save_format="hdf5")
+    model.save(model_file_name)
     draw_loss_and_psnr(history, launching_time)
 
     return model, history
