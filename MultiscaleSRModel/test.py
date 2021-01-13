@@ -5,7 +5,9 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import SimpleITK as sitk
 
+from model import psnr_model
 from preprocessing import downsample
+from utils.adamLRM import AdamLRM
 from utils.utils import get_path
 
 
@@ -16,7 +18,7 @@ def write_output(input_path, output, output_path):
 
     output_name = fr"{Path(input_path).stem}-output.nii"
     sitk_image = sitk.GetImageFromArray(output[0, :, :, :, 0])
-    sitk.WriteImage(sitk_image, fr"{output_path}\\{output_name}")
+    sitk.WriteImage(sitk_image, str(Path(output_path) / output_name))
 
 
 def load_input(input_path):
@@ -47,10 +49,16 @@ def launch_testing(
         output_folder=None,
         preproc=False,
         blur_sigma=1,
-        scales=(2, 2, 2),
+        scales=None,
         interpolation_order=3
 ):
-    model = load_model(path_model)
+    if scales is None:
+        scales = (2, 2, 2)
+
+    model = load_model(
+        path_model,
+        custom_objects={"psnr_model": psnr_model, "AdamLRM": AdamLRM}
+    )
     input_pathes = list(Path(input_folder).glob("*.nii*"))
     input_pathes = [str(p) for p in input_pathes]
     for input_path in input_pathes:

@@ -17,7 +17,7 @@ def downsample(
         downsampling_scale=(2, 2, 2),
         interpolation_order=3,
 ):
-    if image is str or image is Path:
+    if type(image) is str or type(image) is Path:
         reference_nifti = sitk.ReadImage(image)
         reference_image = sitk.GetArrayFromImage(reference_nifti)
     else:
