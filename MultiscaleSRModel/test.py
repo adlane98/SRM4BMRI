@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 
+import nibabel as nib
 import numpy as np
 from tensorflow.keras.models import load_model
-import SimpleITK as sitk
+# import SimpleITK as sitk
 
 from model import psnr_model
 from preprocessing import downsample
@@ -17,13 +18,21 @@ def write_output(input_path, output, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     output_name = fr"{Path(input_path).stem}-output.nii"
-    sitk_image = sitk.GetImageFromArray(output[0, :, :, :, 0])
-    sitk.WriteImage(sitk_image, str(Path(output_path) / output_name))
+
+    # sitk_image = sitk.GetImageFromArray(output[0, :, :, :, 0])
+    # sitk.WriteImage(sitk_image, str(Path(output_path) / output_name))
+
+    new_image = nib.Nifti1Image(
+        output[0, :, :, :, 0].astype(np.float64), affine=None
+    )
+    nib.save(new_image, str(Path(output_path) / output_name))
 
 
 def load_input(input_path):
-    input_nifti = sitk.ReadImage(input_path)
-    input_image = sitk.GetArrayFromImage(input_nifti)
+    # input_nifti = sitk.ReadImage(input_path)
+    # input_image = sitk.GetArrayFromImage(input_nifti)
+    input_nifti = nib.load(input_path)
+    input_image = input_nifti.get_data()
 
     return input_image[np.newaxis, :, :, :, np.newaxis]
 
@@ -31,11 +40,14 @@ def load_input(input_path):
 def load_input_preproc(
         input_path, blur_sigma, downsampling_scale, interpolation_order
 ):
-    input_nifti = sitk.ReadImage(input_path)
-    image = sitk.GetArrayFromImage(input_nifti)
+    # input_nifti = sitk.ReadImage(input_path)
+    # input_image = sitk.GetArrayFromImage(input_nifti)
+
+    input_nifti = nib.load(input_path)
+    input_image = input_nifti.get_data()
 
     image, _ = downsample(
-        image,
+        input_image,
         blur_sigma,
         downsampling_scale,
         interpolation_order

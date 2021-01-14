@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import SimpleITK as sitk
+import nibabel as nib
 import numpy as np
 from scipy.ndimage import gaussian_filter, zoom
 
@@ -12,17 +13,19 @@ from utils.utils3D import imadjust3D, modcrop3D
 
 
 def downsample(
-        image,
+        path_image,
         blur_sigma=1,
         downsampling_scale=(2, 2, 2),
         interpolation_order=3,
 ):
-    if type(image) is str or type(image) is Path:
-        reference_nifti = sitk.ReadImage(image)
-        reference_image = sitk.GetArrayFromImage(reference_nifti)
+    if type(path_image) is str or type(path_image) is Path:
+        # reference_nifti = sitk.ReadImage(image)
+        # reference_image = sitk.GetArrayFromImage(reference_nifti)
+        reference_nifti = nib.load(path_image)
+        reference_image = reference_nifti.get_data()
     else:
-        reference_image = image
-    reference_image = np.swapaxes(reference_image, 0, 2).astype('float32')
+        reference_image = path_image
+    reference_image = np.swapaxes(reference_image, 0, 2).astype("float32")
 
     # Normalisation and modcrop
     reference_image = imadjust3D(reference_image, [0, 1])
