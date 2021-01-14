@@ -12,7 +12,7 @@ from utils.adamLRM import AdamLRM
 from utils.utils import get_path
 
 
-def write_output(input_path, output, output_path):
+def write_output(input_path, output, output_path, affine=None):
     if output_path is None:
         output_path = fr"{get_path('outputs')}"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -23,7 +23,7 @@ def write_output(input_path, output, output_path):
     # sitk.WriteImage(sitk_image, str(Path(output_path) / output_name))
 
     new_image = nib.Nifti1Image(
-        output[0, :, :, :, 0].astype(np.float64), affine=None
+        output[0, :, :, :, 0].astype(np.float64), affine=affine
     )
     nib.save(new_image, str(Path(output_path) / output_name))
 
@@ -34,7 +34,7 @@ def load_input(input_path):
     input_nifti = nib.load(input_path)
     input_image = input_nifti.get_data()
 
-    return input_image[np.newaxis, :, :, :, np.newaxis]
+    return input_image[np.newaxis, :, :, :, np.newaxis], input_nifti.affine
 
 
 def load_input_preproc(
@@ -52,7 +52,7 @@ def load_input_preproc(
         downsampling_scale,
         interpolation_order
     )
-    return image[np.newaxis, :, :, :, np.newaxis]
+    return image[np.newaxis, :, :, :, np.newaxis], input_nifti.affine
 
 
 def launch_testing(
@@ -75,15 +75,15 @@ def launch_testing(
     input_pathes = [str(p) for p in input_pathes]
     for input_path in input_pathes:
         if preproc:
-            test_input = load_input_preproc(
+            test_input, aff = load_input_preproc(
                 input_path, blur_sigma, scales, interpolation_order
             )
         else:
-            test_input = load_input(input_path)
+            test_input, aff = load_input(input_path)
 
         output = model.predict(test_input)
 
-        write_output(input_path, output, output_folder)
+        write_output(input_path, output, output_folder, affine=aff)
 
 
 if __name__ == '__main__':
