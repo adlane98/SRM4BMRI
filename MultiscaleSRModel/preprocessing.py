@@ -32,9 +32,9 @@ def downsample(
     reference_image = modcrop3D(reference_image, downsampling_scale)
 
     # Blur and downsampling
-    blur_reference_image = gaussian_filter(reference_image, sigma=blur_sigma)
+    # blur_reference_image = gaussian_filter(reference_image, sigma=blur_sigma)
     low_resolution_image = zoom(
-        blur_reference_image,
+        reference_image,
         zoom=(1 / float(idxScale) for idxScale in downsampling_scale),
         order=interpolation_order
     )
@@ -83,6 +83,18 @@ def make_patches(
     return data_patches[:max_number_patches, :, :, :, :], labels_patches[:max_number_patches, :, :, :, :]
 
 
+def blur_patches(patches, blur_sigma):
+    for i in range(patches.shape[0]):
+        if blur_sigma == -1:
+            blur_rd = np.random.rand(1)
+            patches[i, :, :, :, 0] = gaussian_filter(patches[i, :, :, :, 0],
+                                                     sigma=blur_rd[0])
+        else:
+            patches[i, :, :, :, 0] = gaussian_filter(patches[i, :, :, :, 0],
+                                                     sigma=blur_sigma)
+    return patches
+
+
 def prepare_data(
         images_path,
 
@@ -126,7 +138,7 @@ def prepare_data(
                     patch_stride,
                     max_number_patches_per_subject
                 )
-
+                data_patches = blur_patches(data_patches, blur_sigma)
                 data.append(data_patches)
                 label.append(label_patches)
 

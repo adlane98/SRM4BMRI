@@ -17,7 +17,10 @@ def write_output(input_path, output, output_path, affine=None):
         output_path = fr"{get_path('outputs')}"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    output_name = fr"{Path(input_path).stem}-output.nii"
+    file_stem = Path(input_path).stem
+    file_stem = file_stem[2:] if file_stem.startswith(r"\\") else file_stem
+
+    output_name = fr"{file_stem}-output.nii"
 
     # sitk_image = sitk.GetImageFromArray(output[0, :, :, :, 0])
     # sitk.WriteImage(sitk_image, str(Path(output_path) / output_name))

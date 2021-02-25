@@ -23,7 +23,7 @@ def parsing():
     parser.add_argument("--sigma",
                         help="Standard deviation (sigma) of "
                              "Gaussian blur (default=1)",
-                        type=int, default=1)
+                        type=float, default=1.0)
     parser.add_argument("-s", "--scale",
                         help="Scale factor (default = 2,2,2). Append mode: "
                              "-s 2,2,2 -s 3,3,3",
