@@ -4,7 +4,7 @@ import scipy.ndimage
 
 import SimpleITK as sitk
 
-from utils3D import modcrop3D, shave3D, imadjust3D
+from utils.utils3D import modcrop3D, imadjust3D
 
 
 if __name__ == '__main__':

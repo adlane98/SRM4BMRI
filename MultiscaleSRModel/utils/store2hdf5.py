@@ -78,12 +78,13 @@ def store2hdf53D(filename, datas, labels, create=True, startloc=None, chunksz=25
             startloc = {'dat': 0, 'lab': 0}
             startloc['dat'] = (0,) + tuple(np.zeros(len(dat_dims) - 1, dtype='int'))
             startloc['lab'] = (0,) + tuple(np.zeros(len(lab_dims) - 1, dtype='int'))
+        file.close()
 
     else:  # append mode
         if startloc is None:
             file = h5py.File(filename, "r")
-            prev_dat_sz = file[file.keys()[0]].shape
-            prev_lab_sz = file[file.keys()[1]].shape
+            prev_dat_sz = file[list(file.keys())[0]].shape
+            prev_lab_sz = file[list(file.keys())[1]].shape
             if (prev_dat_sz[1:] != dat_dims[1:]):
                 raise AssertionError('Data dimensions must match existing dimensions in dataset')
             if (prev_lab_sz[1:] != lab_dims[1:]):
@@ -91,6 +92,7 @@ def store2hdf53D(filename, datas, labels, create=True, startloc=None, chunksz=25
             startloc = {'dat': 0, 'lab': 0}
             startloc['dat'] = (prev_dat_sz[0],) + tuple(np.zeros(len(dat_dims) - 1, dtype='int'))
             startloc['lab'] = (prev_lab_sz[0],) + tuple(np.zeros(len(lab_dims) - 1, dtype='int'))
+            file.close()
 
     # Writing data
     if (datas.size) or (labels.size):
