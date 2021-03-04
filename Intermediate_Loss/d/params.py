@@ -9,7 +9,7 @@ import cv2 as cv
 L1_LOSS = 1
 L2_LOSS = 2
 
-
+# Scale of the upscale
 scale = 2
 folder_name = '00001_0004'
 folder_base_name = '../cnn-3d/3d-images'
@@ -18,14 +18,15 @@ folder_base_name = '../cnn-3d/3d-images'
 # cv.INTER_LANCZOS4
 # cv.INTER_NEAREST
 interpolation_method = cv.INTER_LANCZOS4 
-num_epochs = 40
+num_epochs = 4
 LOSS = L1_LOSS
 learning_rate = 1e-4
 dim_patch = '_d_14_7_%d' % scale
 dim_patch_2 = '_d_2_1_14_7_%d' % scale 
 kernel_size = 5 
 image_ext = 'png'
-folder_data = './build/model_d_ckpt_10mri_1401/'
+# Folder of the model
+folder_data = './build/model_d_ckpt_10mri_1401_test/'
 layers = 8
 num_channels = 1
 tf_version = 1.02

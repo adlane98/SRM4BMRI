@@ -19,15 +19,21 @@ import networks as nets
 import utils
 import params
 
+# Have a directory for patch with this tree
+# -train_data|-3T 
+#            |-inputs 
+#            |-ground_truth   
+
 SHOW_IMAGES = False 
 IS_RESTORE = tf.train.latest_checkpoint(params.folder_data) != None 
  
 params.show_params()   
 path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train_d'
+# CHANGE YOUR PATH HERE 
 path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_2'
 #path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_d_x4'
-data_reader = reader.DataReader(path, './data/',
-								'./data/', SHOW_IMAGES=False)
+
+data_reader = reader.DataReader(path, './data/','./data/', SHOW_IMAGES=False)
    	 
 # training 
 batch_size = 128 
@@ -81,11 +87,14 @@ if IS_RESTORE:
     start_epoch = re.findall(r'\d+', tf.train.latest_checkpoint(params.folder_data))
     start_epoch = int(start_epoch[0]) + 1
 	# the epoch get with findall is wrong, don't know why, so we must fix it  
-start_epoch = 20
+#/!\ It can have an issue when restore the model, so we have to manually set the start_epoch
+#start_epoch = 20
 
+# Some log to display after the training
 list_psnr = []
 list_ssim = []
 list_loss = []
+
 print('the number of images is: ', data_reader.num_train_images)
 for epoch in range(start_epoch, params.num_epochs):
 	batch_loss = 0
@@ -109,9 +118,11 @@ for epoch in range(start_epoch, params.num_epochs):
 	merged_ = sess.run(merged, feed_dict={total_loss_placeholder: batch_loss/num_images, ssim_placeholder: ssim_epoch/num_images, psnr_placeholder: psnr_epoch/num_images, lr_placeholder : lr } )
 	writer.add_summary(merged_, epoch)
 	print('saving checkpoint...')  
-	print(list_loss)
-	print(list_psnr)
-	print(list_ssim)
+
 	saver.save(sess, params.folder_data + params.ckpt_name + str(epoch))	
+
+print(list_loss)
+print(list_psnr)
+print(list_ssim)
 
 sess.close()

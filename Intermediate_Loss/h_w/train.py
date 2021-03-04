@@ -3,6 +3,7 @@
 #  Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 #  (https://creativecommons.org/licenses/by-nc-sa/4.0/)
 #
+# Changed by Alexandre FICHE and Maxime FURET 
 
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
@@ -19,14 +20,16 @@ import networks as nets
 import utils
 import params
 
+# Have a directory for patch with this tree
+# -train_data|-3T 
+#            |-inputs 
+#            |-ground_truth   
+
 SHOW_IMAGES = False 
 IS_RESTORE = tf.train.latest_checkpoint(params.folder_data) is not None
 
-# ajout
-
-
 params.show_params()   
-#path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train'
+# CHANGE YOUR PATH HERE 
 path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2'
 
 data_reader = reader.DataReader(path, './data/', './data/')
@@ -81,12 +84,14 @@ if IS_RESTORE:
     start_epoch = int(start_epoch[0]) + 1
 else:
 	print("===========NEW MODEL")
-start_epoch = 20
+#/!\ It can have an issue when restore the model, so we have to manually set the start_epoch
+#start_epoch = 20
 
 print('the number of images is: ', data_reader.num_train_images)
 print("we start at ",start_epoch," epoch")
 print("the goal is ",params.num_epochs, "epoch")
 
+# Some log to display after the training
 list_psnr = []
 list_ssim = []
 list_loss = []
@@ -120,10 +125,10 @@ for epoch in range(start_epoch, params.num_epochs):
 										  lr_placeholder : lr } )
 	writer.add_summary(merged_, epoch)
 	print('saving checkpoint...')
-	print(list_loss)
-	print(list_psnr)
-	print(list_ssim)
 	saver.save(sess, params.folder_data + params.ckpt_name + str(epoch))
 
+print(list_loss)
+print(list_psnr)
+print(list_ssim)
 
 sess.close()

@@ -48,25 +48,19 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
     return index
 
 # **************************************************
-#             PATCHES EXTRACTION TEST
-# file = r'C:\Users\furet\Pictures\image.jpg'
-# img = cv.imread(file)
-# inp = r'C:\Users\furet\Pictures\inputs'
-# gt = r'C:\Users\furet\Pictures\truth'
-# print(extract_patch_and_save(img,64,30,2,inp,gt,0))
-#
-# **************************************************
-
-
-# **************************************************
 #                      MAIN
+# Create directory for patch with this tree
+# -train_data|-3T (put your mri image here)
+#            |-inputs (inputs patch will be create here for the training)
+#            |-ground_truth (ground_truth patch will be create here for the training)
 # Params
 main_dir = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\3T'
+f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\inputs'
+f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\ground_truth'
 dim_patch = 14
 stride = 7
 scale = 2
-f_in = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\inputs'
-f_gt = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\marmoset_train_2\train_data\ground_truth'
+
 index = 0
 
 for images in os.listdir(main_dir):
@@ -78,7 +72,5 @@ for images in os.listdir(main_dir):
     for i in range(imgs.shape[-1]):
         index = extract_patch_and_save(fdata[:,:,i],dim_patch,stride,scale,f_in,f_gt,index,images)
 
-    # for i in range(2):
-    #     index = extract_patch_and_save(fdata[:,:,i],dim_patch,stride,scale,f_in,f_gt,index)
 
 # **************************************************
