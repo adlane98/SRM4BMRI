@@ -51,9 +51,9 @@ def load_input_preproc(
 
     image, _ = downsample(
         input_image,
-        blur_sigma,
         downsampling_scale,
-        interpolation_order
+        interpolation_order,
+        blur_sigma
     )
     return image[np.newaxis, :, :, :, np.newaxis], input_nifti.affine
 

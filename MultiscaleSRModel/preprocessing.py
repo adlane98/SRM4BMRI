@@ -14,9 +14,9 @@ from utils.utils3D import imadjust3D, modcrop3D
 
 def downsample(
         path_image,
-        blur_sigma=1,
         downsampling_scale=(2, 2, 2),
         interpolation_order=3,
+        blur_sigma=None,
 ):
     if type(path_image) is str or type(path_image) is Path:
         # reference_nifti = sitk.ReadImage(image)
@@ -30,11 +30,17 @@ def downsample(
     # Normalisation and modcrop
     reference_image = imadjust3D(reference_image, [0, 1])
     reference_image = modcrop3D(reference_image, downsampling_scale)
+    to_downsample = reference_image
 
     # Blur and downsampling
-    # blur_reference_image = gaussian_filter(reference_image, sigma=blur_sigma)
+    if blur_sigma:
+        blurred_reference_image = gaussian_filter(
+            reference_image, sigma=blur_sigma
+        )
+        to_downsample = blurred_reference_image
+
     low_resolution_image = zoom(
-        reference_image,
+        to_downsample,
         zoom=(1 / float(idxScale) for idxScale in downsampling_scale),
         order=interpolation_order
     )
@@ -128,8 +134,9 @@ def prepare_data(
 
             data, label = [], []
             for j, scale in enumerate(scales):
+                # blur_sigma=None means we do not want to blur the whole volume
                 data_ds, label_ds = downsample(
-                    image_path, blur_sigma, scale, interpolation_order
+                    image_path, scale, interpolation_order, blur_sigma=None
                 )
                 data_patches, label_patches = make_patches(
                     data_ds,
