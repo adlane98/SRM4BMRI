@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 config = tf.ConfigProto(
         device_count={'GPU': 1}
     ) 
+
 def upscale(downscaled_image, checkpoint):
 
     scale_factor = params_hw.scale   
@@ -62,7 +63,8 @@ def run_network(downscaled_image, checkpoint):
         cnn_output = np.array(cnn_output)   
         cnn_output = np.round(cnn_output) 
         #cnn_output[cnn_output > 255] = 255 
-        return cnn_output    
+        return cnn_output
+
 # function that create list of gt slices and input slices
 def downscale_3d_image(img, scale_factor):
     x,y,z = img.shape
@@ -94,77 +96,65 @@ def reshape(img):
         res[:,:,i] = temp[:,:,i].T
     return res
 
-test_path = r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\train\train_data\3T'
-img_path = test_path+r'\Landman_3253_20110818_366806254_301_WIP_MPRAGE_SENSE_MPRAGE_SENSE.nii.gz'
-model_path = r'.\data_ckpt\model.ckpt39'
 scale = 2
 
 test_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
-img_path = test_path+r'\3935.nii'
-model_path = r'.\data_ckpt_15122\model.ckpt39'
-model_path2 = r'.\data_ckpt_d1712\model.ckpt39'
+img_path = test_path + r'\3935.nii'
+model_path = r'.\build\model_hw_ckpt_10mri_1401\model.ckpt39'
+model_path2 = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
 
 img_3d = nib.load(img_path)
-data = img_3d.get_fdata()
+ground_truth_img = img_3d.get_fdata()
 
-# Visualiaze luminosity
-#flat = data.flatten()
-#print(flat.shape)
-#plt.figure()
-#plt.hist(flat,100)
-#plt.show()
+#input_img = downscale_mri(ground_truth_img,scale)
 
-test_images_gt, test_images = downscale_3d_image(data, scale)
 
-# print(test_images_gt.shape)
-# print(test_images.shape)
+# img = nib.Nifti1Image(input_img,None)
+# file_name = "marmouset_downscale_3935.nii.gz"
+# print("Save to: "+file_name)
+# nib.save(img,file_name)
 
-# import matplotlib.pyplot as plt
-# plt.imshow(test_images[0])
+#input_img2 = np.swapaxes(input_img,1,2)
+input_img2 = np.swapaxes(ground_truth_img,1,2)
+input_img2 = np.swapaxes(input_img2,0,1)
+
+image_wh = upscale(input_img2,model_path)
+image_wh = np.swapaxes(image_wh,0,1)
+image_wh = np.swapaxes(image_wh,1,2)
+tf.reset_default_graph()
+
+image_wh = np.expand_dims(image_wh, axis=3)
+image_d = run_network(image_wh,model_path2)
+
+final_img = image_d[:,:,:,0]
+
+
+# plotting with downscaled input image
+# i = 10
+# plt.figure()
+# plt.subplot(1,3,1)
+# plt.imshow(input_img[i],cmap='gray', vmin=0, vmax=255)
+# plt.xlabel("input")
+# plt.subplot(1,3,2)
+# plt.imshow(final_img[i*scale],cmap='gray', vmin=0, vmax=255)
+# plt.xlabel("predicted")
+# plt.subplot(1,3,3)
+# plt.imshow(ground_truth_img[i*scale],cmap='gray', vmin=0, vmax=255)
+# plt.xlabel("ground_truth")
 # plt.show()
-print(len(test_images))
-test_images = data
-data2 = np.expand_dims(data, axis=3)
-print(data.shape)
-print(data2.shape)
-#compute_performance_indices(test_path,test_images_gt,test_images,model_path,write_to_summary=False)
 
-image = np.expand_dims(data, axis=3)
-image_d = run_network(image,model_path2)
-tf.reset_default_graph()
+# plotting with normal image
+# i = 30
+# plt.figure()
+# plt.subplot(1,2,1)
+# plt.imshow(ground_truth_img[:,:,i],cmap='gray', vmin=0, vmax=255)
+# plt.xlabel("input")
+# plt.subplot(1,2,2)
+# plt.imshow(final_img[:,:,i*scale],cmap='gray', vmin=0, vmax=255)
+# plt.xlabel("predicted")
+# plt.show()
 
-test = reshape(image_d[:,:,:,0])
-image_final = upscale(test, model_path)
-tf.reset_default_graph()
-
-
-
-i = 60
-
-image_final = np.swapaxes(image_final,2,1)
-image_final = np.swapaxes(image_final,2,0)
-
-plt.figure()
-print(data.shape)
-plt.imshow(data[:,:,i],cmap='gray_r', vmin=0, vmax=255)
-
-plt.figure()
-print(image_final.shape)
-plt.imshow(image_final[:,:,i*2],cmap='gray_r', vmin=0, vmax=255)
-
-
-print("SUCCES")
-print(data.shape," to ",image_final.shape)
-plt.show()
-
-# Visualiaze luminosity
-#flat = image_final.flatten()
-#print(flat.shape)
-#plt.figure()
-#plt.hist(flat,100)
-#plt.show()
-
-img = nib.Nifti1Image(image_final,None)
-file_name = "marmouset_sr3936_test1.nii.gz"
+img = nib.Nifti1Image(final_img,affine=img_3d.affine)
+file_name = "marmouset_sr3935_upscale_with_10mri_train_1802.nii.gz"
 print("Save to: "+file_name)
 nib.save(img,file_name)

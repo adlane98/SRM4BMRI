@@ -86,6 +86,11 @@ start_epoch = 20
 print('the number of images is: ', data_reader.num_train_images)
 print("we start at ",start_epoch," epoch")
 print("the goal is ",params.num_epochs, "epoch")
+
+list_psnr = []
+list_ssim = []
+list_loss = []
+
 for epoch in range(start_epoch, params.num_epochs):
 	batch_loss = 0
 	num_images = 0
@@ -106,12 +111,18 @@ for epoch in range(start_epoch, params.num_epochs):
 	print("Epoch/Iteration {}/{} ...".format(epoch, i), "Training loss: {:.4f}  ssim: {:.4f} psnr: {:.4f}".
 			format(batch_loss/num_images, ssim_epoch/num_images, psnr_epoch/num_images), "Learning rate:  {:.8f}".
 			format(lr))
+	list_loss += [batch_loss/num_images]
+	list_ssim += [ssim_epoch/num_images]
+	list_psnr += [psnr_epoch/num_images]
 	merged_ = sess.run(merged, feed_dict={total_loss_placeholder: batch_loss/num_images,
 										  ssim_placeholder: ssim_epoch/num_images,
 										  psnr_placeholder: psnr_epoch/num_images,
 										  lr_placeholder : lr } )
 	writer.add_summary(merged_, epoch)
 	print('saving checkpoint...')
+	print(list_loss)
+	print(list_psnr)
+	print(list_ssim)
 	saver.save(sess, params.folder_data + params.ckpt_name + str(epoch))
 
 
