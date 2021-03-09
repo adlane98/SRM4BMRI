@@ -128,6 +128,8 @@ def prepare_data(
     list_hdf5_file_name = fr"{get_path('hdf5')}{time}.txt"
     os.makedirs(os.path.dirname(list_hdf5_file_name), exist_ok=True)
     with open(list_hdf5_file_name, "w") as lfh:
+
+        total_samples = 0
         for i, image_path in enumerate(images_path):
             hdf5_file_name = fr"{get_path('hdf5')}{time}_{Path(image_path).stem}.h5"
             lfh.write(f"{hdf5_file_name}\n")
@@ -151,18 +153,20 @@ def prepare_data(
 
             data = np.concatenate(data, axis=0)
             label = np.concatenate(label, axis=0)
+            total_samples += data.shape[0]
             store2hdf53D(hdf5_file_name, data, label, create=True)
 
     json_file_name = fr"{get_path('metadata')}{time}_preproc_parameter.json"
     write_metadata(
         json_file_name,
         {
-           "images": images_path,
-           "blur": blur_sigma,
-           "scales": scales,
-           "interpolation_order": interpolation_order,
-           "patch_size": patch_size,
-           "patch_stride": patch_stride,
-           "max_number_patches_per_subject": max_number_patches_per_subject
+            "images": images_path,
+            "blur": blur_sigma,
+            "scales": scales,
+            "interpolation_order": interpolation_order,
+            "patch_size": patch_size,
+            "patch_stride": patch_stride,
+            "max_number_patches_per_subject": max_number_patches_per_subject,
+            "total_samples": total_samples
         },
     )
