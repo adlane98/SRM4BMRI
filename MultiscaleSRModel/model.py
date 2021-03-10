@@ -6,6 +6,7 @@ from tensorflow import image, pad
 from tensorflow.keras.initializers import RandomNormal, Constant
 from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 from utils.adamLRM import AdamLRM
 from utils.utils import get_path, get_time, read_hdf5_files, write_metadata
@@ -77,7 +78,7 @@ def launch_training(
 
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
     model.compile(
-        optimizer=AdamLRM(learning_rate=adam_lr),
+        optimizer=Adam(),
         loss="mse",
         metrics=[psnr_model],
         run_eagerly=True
