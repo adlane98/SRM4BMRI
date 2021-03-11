@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import SimpleITK as sitk
 import nibabel as nib
 import numpy as np
 from scipy.ndimage import gaussian_filter, zoom

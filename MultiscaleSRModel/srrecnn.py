@@ -58,9 +58,6 @@ def parsing():
     parser.add_argument("-k", "--kernel",
                         help="Indicates size of filter (default=3)", type=int,
                         default=3)
-    parser.add_argument("--kernelpad",
-                        help="Indicates kernel padding (default=1)", type=int,
-                        default=1)
     parser.add_argument("--epochs",
                         help="Indicates epochs of the training (default=20)",
                         type=int,
@@ -126,7 +123,6 @@ if __name__ == '__main__':
             depth=args.layers,
             nb_filters=args.numkernel,
             kernel_size=args.kernel,
-            padding=args.kernelpad,
             epochs=args.epochs,
             batch_size=args.batch,
             adam_lr=args.adam

@@ -51,13 +51,20 @@ def launch_training(
         depth=10,
         nb_filters=64,
         kernel_size=3,
-        padding=1,
         epochs=20,
         batch_size=4,
         adam_lr=0.0001,
         hdf5_source_file=None
 ):
     launching_time = get_time()
+
+    if kernel_size % 2 != 0 or kernel_size <= 1 or kernel_size >= data.shape[1]:
+        raise AttributeError(
+            "The kernel size (-k, --kernel) needs to be odd, "
+            "greater than 1 and smaller than the patch size."
+        )
+
+    padding = (kernel_size - 1)/2
 
     json_file_name = fr"{get_path('metadata')}{launching_time}_training_parameter.json"
     write_metadata(
@@ -113,7 +120,6 @@ def launch_training_hdf5(
         depth=10,
         nb_filters=64,
         kernel_size=3,
-        padding=1,
         epochs=20,
         batch_size=4,
         adam_lr=0.0001
@@ -127,7 +133,6 @@ def launch_training_hdf5(
         depth,
         nb_filters,
         kernel_size,
-        padding,
         epochs,
         batch_size,
         adam_lr,
