@@ -101,13 +101,28 @@ def reshape(img):
 
 # Settings
 scale = 2
-test_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
-img_path =  r'.\3935_blur_1_5_3x3.nii.gz'
-model_path = r'.\build\model_hw_ckpt_10mri_1401\model.ckpt39'
-model_path2 = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
-file_name = "marmouset_sr3935_blur_1_5_7x7_upscale_with_10mri_train.nii.gz"
-DOWNSCALE = False
+dir_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
+mri_name =  r'.\4299.nii'
+img_path =  dir_path + mri_name
+model_path_hw = r'.\build\model_hw_ckpt_10mri_1401\model.ckpt39'
+model_path_d = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
 
+file_name = "marmouset_stest2_upscale_with_10mri_train.nii.gz"
+optional = ""
+DOWNSCALE = True
+
+# Some optional parameter
+VISUALIZATION = True
+BLUR_INPUT = True
+SAVE_INPUT = True
+SAVE_OUTPUT_1ST_MODEL = True 
+
+# Visualization parameter
+slices_value = [10,20,30]
+
+# Blur parameter
+sigma = 1.5
+kernel_size = (7,7)
 
 img_3d = nib.load(img_path)
 ground_truth_img = img_3d.get_fdata()
@@ -117,50 +132,43 @@ if DOWNSCALE:
 else:
     input_img = ground_truth_img
 
+if BLUR_INPUT:
+    
 
-sigma = 1.5
-
-x,y,z = input_img.shape
-input_img_blr = cv.GaussianBlur(input_img[:,:,:],(3,3),sigma)
-
-for i in range(20,40,20):
-    plt.figure()
-    plt.subplot(1,2,1)
-    plt.imshow(input_img[:,:,i],cmap='gray', vmin=0, vmax=255)
-    plt.xlabel("input")
-    plt.subplot(1,2,2)
-    plt.imshow(input_img_blr[:,:,i],cmap='gray', vmin=0, vmax=255)
-    plt.show()
-
-img = nib.Nifti1Image(input_img_blr,affine=img_3d.affine)
-nib.save(img,"3935_blur_1_5_3x3.nii.gz")
-exit()
+    x,y,z = input_img.shape
+    input_img_blr = cv.GaussianBlur(input_img[:,:,:],kernel_size,sigma)
+    img = nib.Nifti1Image(input_img_blr,affine=img_3d.affine)
+    nib.save(img,"4299_blur_1_5_7x7.nii.gz")
+    optional = "blur"
+print(optional)
 
 input_img2 = np.swapaxes(input_img,1,2)
 input_img2 = np.swapaxes(input_img2,0,1)
 
-image_wh = upscale(input_img2,model_path)
+image_wh = upscale(input_img2,model_path_hw)
 image_wh = np.swapaxes(image_wh,0,1)
 image_wh = np.swapaxes(image_wh,1,2)
 tf.reset_default_graph()
 
 image_wh = np.expand_dims(image_wh, axis=3)
-image_d = run_network(image_wh,model_path2)
+image_d = run_network(image_wh,model_path_d)
 
 final_img = image_d[:,:,:,0]
-if DOWNSCALE and False:
-    i = 10
-    plt.figure()
-    plt.subplot(1,3,1)
-    plt.imshow(input_img[i],cmap='gray', vmin=0, vmax=255)
-    plt.xlabel("input")
-    plt.subplot(1,3,2)
-    plt.imshow(final_img[i*scale],cmap='gray', vmin=0, vmax=255)
-    plt.xlabel("predicted")
-    plt.subplot(1,3,3)
-    plt.imshow(ground_truth_img[i*scale],cmap='gray', vmin=0, vmax=255)
-    plt.xlabel("ground_truth")
-    plt.show()
+
+if DOWNSCALE and VISUALIZATION:
+
+    for i in slices_value:
+        plt.figure()
+        plt.subplot(1,3,1)
+        plt.imshow(input_img[i],cmap='gray', vmin=0, vmax=255)
+        plt.xlabel("input")
+        plt.subplot(1,3,2)
+        plt.imshow(final_img[i*scale],cmap='gray', vmin=0, vmax=255)
+        plt.xlabel("predicted")
+        plt.subplot(1,3,3)
+        plt.imshow(ground_truth_img[i*scale],cmap='gray', vmin=0, vmax=255)
+        plt.xlabel("ground_truth")
+        plt.show()
 
 
 x, y, z = final_img.shape
@@ -171,6 +179,7 @@ nib.save(img,file_name)
 print(final_img.shape)
 
 print("Save to: "+file_name)
+
 if DOWNSCALE:
     print("PSNR:",utils.psnr(final_img,ground_truth_img_adapt))
     print("SSIM:",utils.ssim(final_img,ground_truth_img_adapt))
