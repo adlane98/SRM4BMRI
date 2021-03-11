@@ -102,15 +102,18 @@ def reshape(img):
 # Settings
 scale = 2
 dir_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
-mri_name =  r'.\4299.nii'
-img_path =  dir_path + mri_name
+mri_number = "4299"
+mri_name =  r".\" +mri_number+ '.nii'
 model_path_hw = r'.\build\model_hw_ckpt_10mri_1401\model.ckpt39'
 model_path_d = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
 
-file_name = "marmouset_stest2_upscale_with_10mri_train.nii.gz"
+#file_name = "marmouset_stest2_upscale_with_10mri_train.nii.gz"
+network_name = "10mri_train"
+extension = "nii.gz"
 optional = ""
 DOWNSCALE = True
 
+file_name = 
 # Some optional parameter
 VISUALIZATION = True
 BLUR_INPUT = True
@@ -129,18 +132,19 @@ ground_truth_img = img_3d.get_fdata()
 
 if DOWNSCALE:
     input_img = downscale_mri(ground_truth_img,scale)
+    mode = "downscale_then_upscale"
 else:
     input_img = ground_truth_img
+    mode = "upscale"
+
+file_name =  dir_path + mri_name + "_" + mode + "_" + optional + network_name + extension
 
 if BLUR_INPUT:
-    
-
     x,y,z = input_img.shape
     input_img_blr = cv.GaussianBlur(input_img[:,:,:],kernel_size,sigma)
     img = nib.Nifti1Image(input_img_blr,affine=img_3d.affine)
+    optional = "blur_"
     nib.save(img,"4299_blur_1_5_7x7.nii.gz")
-    optional = "blur"
-print(optional)
 
 input_img2 = np.swapaxes(input_img,1,2)
 input_img2 = np.swapaxes(input_img2,0,1)
@@ -169,7 +173,6 @@ if DOWNSCALE and VISUALIZATION:
         plt.imshow(ground_truth_img[i*scale],cmap='gray', vmin=0, vmax=255)
         plt.xlabel("ground_truth")
         plt.show()
-
 
 x, y, z = final_img.shape
 ground_truth_img_adapt = ground_truth_img[:x,:y,:z]
