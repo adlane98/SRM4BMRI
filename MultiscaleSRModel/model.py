@@ -6,9 +6,10 @@ from tensorflow import image, pad
 from tensorflow.keras.initializers import RandomNormal, Constant
 from tensorflow.keras.layers import Add, Conv3D, Input, ReLU
 from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 from utils.adamLRM import AdamLRM
-from utils import get_time, read_hdf5_files, write_metadata, get_metadata_path, get_hdf5_path
+from utils.utils import get_path, get_time, read_hdf5_files, write_metadata
 
 
 def psnr_model(y_pred, y_true):
@@ -50,7 +51,6 @@ def launch_training(
         depth=10,
         nb_filters=64,
         kernel_size=3,
-        padding=1,
         epochs=20,
         batch_size=4,
         adam_lr=0.0001,
@@ -58,7 +58,15 @@ def launch_training(
 ):
     launching_time = get_time()
 
-    json_file_name = fr"{get_metadata_path()}{launching_time}_training_parameter.json"
+    if kernel_size % 2 != 0 or kernel_size <= 1 or kernel_size >= data.shape[1]:
+        raise AttributeError(
+            "The kernel size (-k, --kernel) needs to be odd, "
+            "greater than 1 and smaller than the patch size."
+        )
+
+    padding = (kernel_size - 1)/2
+
+    json_file_name = fr"{get_path('metadata')}{launching_time}_training_parameter.json"
     write_metadata(
         json_file_name,
         {
@@ -77,7 +85,7 @@ def launch_training(
 
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
     model.compile(
-        optimizer=AdamLRM(learning_rate=adam_lr),
+        optimizer=Adam(),
         loss="mse",
         metrics=[psnr_model],
         run_eagerly=True
@@ -89,8 +97,10 @@ def launch_training(
         epochs=epochs
     )
 
-    weights_file_name = fr"{get_metadata_path()}{launching_time}_weights.h5"
+    weights_file_name = fr"{get_path('metadata')}{launching_time}_weights.h5"
+    model_file_name = fr"{get_path('metadata')}{launching_time}_model"
     model.save_weights(weights_file_name, save_format="hdf5")
+    model.save(model_file_name)
     draw_loss_and_psnr(history, launching_time)
 
     return model, history
@@ -100,9 +110,9 @@ def get_source_file(filename):
     if filename is not None:
         return filename
     else:
-        hdf5_files = Path(get_hdf5_path()).glob("*.txt")
+        hdf5_files = Path(get_path('hdf5')).glob("*.txt")
         hdf5_files = sorted(hdf5_files)
-        return fr"{get_hdf5_path()}{hdf5_files[-1].name}"
+        return fr"{get_path('hdf5')}{hdf5_files[-1].name}"
 
 
 def launch_training_hdf5(
@@ -110,7 +120,6 @@ def launch_training_hdf5(
         depth=10,
         nb_filters=64,
         kernel_size=3,
-        padding=1,
         epochs=20,
         batch_size=4,
         adam_lr=0.0001
@@ -124,7 +133,6 @@ def launch_training_hdf5(
         depth,
         nb_filters,
         kernel_size,
-        padding,
         epochs,
         batch_size,
         adam_lr,
@@ -145,4 +153,4 @@ def draw_loss_and_psnr(history, launching_time):
     plt.plot(history.epoch, history.history['psnr_model'])
     plt.title('psnr')
 
-    plt.savefig(fr"{get_metadata_path()}loss-psnr-curves-{launching_time}")
+    plt.savefig(fr"{get_path('metadata')}loss-psnr-curves-{launching_time}")

@@ -65,17 +65,13 @@ def run_network(downscaled_image, checkpoint):
         #cnn_output[cnn_output > 255] = 255 
         return cnn_output
 
-# function that create list of gt slices and input slices
-def downscale_3d_image(img, scale_factor):
-    x,y,z = img.shape
-    gt = np.zeros((1,z,x,y))
-    inp = np.zeros((1,z,x//scale_factor,y//scale_factor))
-    for i in range(z):
-        gt[0,i,:,:] = img[:,:,i]
-        inp[0,i,:,:] = cv.resize(img[:,:,i],(img.shape[1]//scale_factor,img.shape[0]//scale_factor))
-    return gt, inp
 
-
+# downscale a 3D image by a scale factor
+# params :
+#     img : image that you want to downscale
+#     scale : the scale factor of the down sampling
+# output : 
+#     the downsampled image
 def downscale_mri(img,scale):
     x,y,z = img.shape
     temp = np.zeros((x//scale,y//scale,z))
@@ -86,15 +82,9 @@ def downscale_mri(img,scale):
         res[i,:,:] = cv.resize(temp[i,:,:],(z//scale,y//scale))
     return res
 
-def reshape(img):
-    x,y,z = img.shape
-    res = np.zeros((z,x,y))
-    temp = np.zeros((x,z,y))
-    for i in range(x):
-        temp[i] = img[i].T
-    for i in range(y):
-        res[:,:,i] = temp[:,:,i].T
-    return res
+
+# **************************************************
+#                      MAIN
 
 scale = 2
 
@@ -106,16 +96,20 @@ model_path2 = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
 img_3d = nib.load(img_path)
 ground_truth_img = img_3d.get_fdata()
 
-#input_img = downscale_mri(ground_truth_img,scale)
 
-
+# Inference over a downscaled image
+# input_img = downscale_mri(ground_truth_img,scale)
 # img = nib.Nifti1Image(input_img,None)
 # file_name = "marmouset_downscale_3935.nii.gz"
 # print("Save to: "+file_name)
 # nib.save(img,file_name)
 
-#input_img2 = np.swapaxes(input_img,1,2)
+# use only for downscale input
+# input_img2 = np.swapaxes(input_img,1,2)
+
+# use only for normal input
 input_img2 = np.swapaxes(ground_truth_img,1,2)
+
 input_img2 = np.swapaxes(input_img2,0,1)
 
 image_wh = upscale(input_img2,model_path)
@@ -154,6 +148,7 @@ final_img = image_d[:,:,:,0]
 # plt.xlabel("predicted")
 # plt.show()
 
+# saving file
 img = nib.Nifti1Image(final_img,affine=img_3d.affine)
 file_name = "marmouset_sr3935_upscale_with_10mri_train_1802.nii.gz"
 print("Save to: "+file_name)
