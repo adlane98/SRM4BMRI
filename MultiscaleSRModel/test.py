@@ -3,6 +3,7 @@ from pathlib import Path
 
 import nibabel as nib
 import numpy as np
+from scipy.ndimage import zoom
 from tensorflow.keras.models import load_model
 # import SimpleITK as sitk
 
@@ -62,13 +63,11 @@ def launch_testing(
         path_model,
         input_folder,
         output_folder=None,
-        preproc=False,
-        blur_sigma=1,
-        scales=None,
-        interpolation_order=3
+        zoom_scale=None,
+        downsample_scale=None,
 ):
-    if scales is None:
-        scales = (2, 2, 2)
+    if zoom_scale is None and downsample_scale is None:
+        zoom_scale = (2, 2, 2)
 
     model = load_model(
         path_model,
@@ -77,14 +76,20 @@ def launch_testing(
     input_pathes = list(Path(input_folder).glob("*.nii*"))
     input_pathes = [str(p) for p in input_pathes]
     for input_path in input_pathes:
-        if preproc:
-            test_input, aff = load_input_preproc(
-                input_path, blur_sigma, scales, interpolation_order
+        test_input, aff = load_input(input_path)
+        if zoom_scale is not None:
+            zoomed_image = zoom(
+                test_input[0, :, :, :, 0],
+                zoom=zoom_scale,
+                order=3
             )
+            zoomed_image = zoomed_image[np.newaxis, :, :, :, np.newaxis]
+            model_input = zoomed_image
         else:
-            test_input, aff = load_input(input_path)
+            downsampled_image, _ = downsample(input_path, downsample_scale)
+            model_input = downsampled_image[np.newaxis, :, :, :, np.newaxis]
 
-        output = model.predict(test_input)
+        output = model.predict(model_input)
 
         write_output(input_path, output, output_folder, affine=aff)
 
@@ -94,5 +99,4 @@ if __name__ == '__main__':
         r"D:\OneDrive\Bureau\20210106-205104_model",
         r"D:\Projet\SRM4BMRI\MultiscaleSRModel\data2",
         r"D:\Projet\SRM4BMRI\MultiscaleSRModel\outputs",
-        preproc=True
     )

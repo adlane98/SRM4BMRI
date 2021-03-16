@@ -79,9 +79,18 @@ def parsing():
     parser.add_argument("--output",
                         help="Folder where to store outputs Nifti files",
                         type=str, default=None)
-    parser.add_argument("--downsample",
-                        help="Indicates if a downsample is needed",
-                        action="store_true")
+
+    # We choose either to upsample the tested images (with zoom argument)
+    # or to downsample and then upsample it (with downsample argument) to get
+    # an input image and an output image with the same size.
+    # If the zoom argument is passed then the downsample argument is ignored.
+    # If neither is set, then, by default it will be a [2,2,2] zoom scale.
+    parser.add_argument("-z", "--zoom",
+                        help="Zoom scale of the test image.",
+                        default=None)
+    parser.add_argument("-d", "--downsample",
+                        help="Downsampling scale",
+                        default=None)
 
     args = parser.parse_args()
 
@@ -100,6 +109,12 @@ def parsing():
 
         if args.mri is None:
             raise AssertionError("No image to prepare.")
+
+    if args.test:
+        if args.zoom:
+            args.zoom = make_tuple(args.zoom)
+        if args.downsample:
+            args.downsample = make_tuple(args.downsample)
 
     return args
 
@@ -132,8 +147,6 @@ if __name__ == '__main__':
             path_model=args.model,
             input_folder=args.testinput,
             output_folder=args.output,
-            preproc=args.downsample,
-            blur_sigma=args.sigma,
-            scales=args.scale,
-            interpolation_order=args.order,
+            zoom_scale=args.zoom,
+            downsample_scale=args.downsample
         )
