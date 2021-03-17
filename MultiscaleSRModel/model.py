@@ -86,7 +86,7 @@ def launch_training(
 
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
     model.compile(
-        optimizer=Adam(),
+        optimizer=Adam(adam_lr),
         loss="mse",
         metrics=[psnr_model],
         run_eagerly=True
