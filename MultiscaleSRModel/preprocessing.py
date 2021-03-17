@@ -24,7 +24,7 @@ def downsample(
         reference_image = reference_nifti.get_data()
     else:
         reference_image = path_image
-    reference_image = np.swapaxes(reference_image, 0, 2).astype("float32")
+    # reference_image = np.swapaxes(reference_image, 0, 2).astype("float32")
 
     # Normalisation and modcrop
     reference_image = imadjust3D(reference_image, [0, 1])
@@ -51,7 +51,7 @@ def downsample(
         order=interpolation_order
     )
 
-    return interpolated_image, reference_image
+    return reference_image, low_resolution_image, interpolated_image
 
 
 def make_patches(
@@ -136,7 +136,7 @@ def prepare_data(
             data, label = [], []
             for j, scale in enumerate(scales):
                 # blur_sigma=None means we do not want to blur the whole volume
-                data_ds, label_ds = downsample(
+                label_ds, _, data_ds = downsample(
                     image_path, scale, interpolation_order, blur_sigma=None
                 )
                 data_patches, label_patches = make_patches(
