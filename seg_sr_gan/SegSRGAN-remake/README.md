@@ -26,7 +26,6 @@ François Rousseau 2
 
 run_model.py :  
 > python run_model.py -n run_model -f D:\Projets\srm4bmri\dataset\1010\hr1010.nii.gz -o D:\Projets\srm4bmri\outputs\results -m D:\\Projets\\srm4bmri\\training_folder\\checkpoints\\training_10_epochs\\ -ps 64 64 64
-> 
 
 Sur Osirim :
 Modify the file build_env.sh to have the wanted path, and wanted files names.
