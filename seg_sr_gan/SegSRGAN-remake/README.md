@@ -26,16 +26,17 @@ François Rousseau 2
 
 run_model.py :  
 > python run_model.py -n run_model -f D:\Projets\srm4bmri\dataset\1010\hr1010.nii.gz -o D:\Projets\srm4bmri\outputs\results -m D:\\Projets\\srm4bmri\\training_folder\\checkpoints\\training_10_epochs\\ -ps 64 64 64
-Sur Osirim :
+
+  Sur Osirim :
 Modify the file build_env.sh to have the wanted path, and wanted files names.
-Launch it to create the environment automatically :
+Launch it to create the environment automatically :  
 > sbatch build_env.sh
 For each dataset, modify the file build_dataset.sh with the wanted parameters.
-Launch it to create a dataset given a csv file and a set of data : 
+Launch it to create a dataset given a csv file and a set of data :  
 > sbatch build_dataset.sh
 
-Finnaly, launch a train with (specifying the dataset, the number of epochs etc. in the file) :
+Finnaly, launch a train with (specifying the dataset, the number of epochs etc. in the file) :  
 > sbatch train.sh
 
-Launch a model with (specifying the model in the file) :
+Launch a model with (specifying the model in the file) :  
 > sbatch run_model.sh
