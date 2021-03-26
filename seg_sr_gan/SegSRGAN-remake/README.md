@@ -30,7 +30,7 @@ run_model.py :
   Sur Osirim :
 Modify the file build_env.sh to have the wanted path, and wanted files names.
 Launch it to create the environment automatically :  
-> sbatch build_env.sh
+> sbatch build_env.sh  
 For each dataset, modify the file build_dataset.sh with the wanted parameters.
 Launch it to create a dataset given a csv file and a set of data :  
 > sbatch build_dataset.sh
