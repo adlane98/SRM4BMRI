@@ -36,8 +36,10 @@ For each dataset, modify the file build_dataset.sh with the wanted parameters.
 Launch it to create a dataset given a csv file and a set of data :  
 > sbatch build_dataset.sh
 
-Finnaly, launch a train with (specifying the dataset, the number of epochs etc. in the file) :  
+Finnaly, launch a train with (specifying the dataset, the number of epochs etc. in the file) : 
+(mri_test is optionnal and it is the mri used to have a visualisation between each epoch)
 > sbatch train.sh
+
 
 Launch a model with (specifying the model in the file) :  
 > sbatch run_model.sh
