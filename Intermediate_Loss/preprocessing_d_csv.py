@@ -23,7 +23,7 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
             gt_patch = img[i:i+dim_p,j:j+dim_p]
             sigma = rd.uniform(0,1)
             if (rd.uniform(0,1) < 0.5):
-                in_patch = cv.resize(cv.GaussianBlur(gt_patch,(3,3),sigma),dsize)
+                in_patch = cv.resize(cv.GaussianBlur(gt_patch,(7,7),sigma),dsize)
             else:
                 in_patch = cv.resize(gt_patch,dsize)
 

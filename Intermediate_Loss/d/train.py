@@ -88,7 +88,7 @@ if IS_RESTORE:
     start_epoch = int(start_epoch[0]) + 1
 	# the epoch get with findall is wrong, don't know why, so we must fix it  
 #/!\ It can have an issue when restore the model, so we have to manually set the start_epoch
-#start_epoch = 20
+start_epoch = 20
 
 # Some log to display after the training
 list_psnr = []

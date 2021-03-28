@@ -102,12 +102,14 @@ def reshape(img):
 # Settings
 scale = 2
 dir_path =  r'D:\Utilisateurs\Alexandre\Repertoire_D\projet_super_resolution\data\Marmoset'
-mri_number = "3935"
-dir_path = "."
-mri_name = "4299"
-img_path =  dir_path + "/" + mri_name +'.nii'
-model_path_hw = r'.\build\model_hw_ckpt_10mri_1401\model.ckpt39'
-model_path_d = r'.\build\model_d_ckpt_10mri_1401\model.ckpt39'
+#dir_path =  r'C:\Users\Alexandre\Repertoire\SRM4BMRI\Intermediate_Loss\test_mri'
+
+#mri_number = "3935"
+dir_path = "./test_mri"
+mri_name = "1010_blur_1_5_7x7"
+img_path =  dir_path + "/" + mri_name +'.nii.gz'
+model_path_hw = r'.\build\model_hw_ckpt_10mri_stdv_7x7_0_1-5_1503\model.ckpt39'
+model_path_d = r'.\build\model_d_ckpt_10mri_stdv_7x7_0_1-5_1603\model.ckpt39'
 
 #file_name = "marmouset_stest2_upscale_with_10mri_train.nii.gz"
 network_name = "10mri_train"
@@ -118,14 +120,14 @@ DOWNSCALE = True
 # Some optional parameter
 VISUALIZATION = False
 BLUR_INPUT = False
-SAVE_INPUT = False
+SAVE_INPUT = True
 SAVE_OUTPUT_1ST_MODEL = False 
 
 # Visualization parameter
 slices_value = [10,20,30]
 
 # Blur parameter
-sigma = 1.5
+sigma = 0.9
 kernel_size = (7,7)
 
 img_3d = nib.load(img_path)
@@ -139,14 +141,21 @@ else:
     mode = "upscale"
 
 
+
+# exit()
 if BLUR_INPUT:
     x,y,z = input_img.shape
     input_img_blr = cv.GaussianBlur(input_img[:,:,:],kernel_size,sigma)
     img = nib.Nifti1Image(input_img_blr,affine=img_3d.affine)
-    optional = "blur_"
-    nib.save(img,"3935_blur_0_7_7x7.nii.gz")
+    optional = "blur_"#+sigma+kernel_size[0]
+    nib.save(img,"./test_mri/"+mri_name+"_blur_0_9_7x7.nii.gz")
 
-file_name =  dir_path + "/" +  mri_name + "_" + mode + "_" + optional + network_name + "_1203" + extension
+if SAVE_INPUT:
+    img = nib.Nifti1Image(input_img,affine=img_3d.affine)
+    nib.save(img,dir_path + "/" + mri_name+"_input.nii.gz")
+
+
+file_name =  dir_path + "/" +  mri_name + "_" + mode + "_" + optional + network_name + "_2403" + extension
 
 input_img2 = np.swapaxes(input_img,1,2)
 input_img2 = np.swapaxes(input_img2,0,1)

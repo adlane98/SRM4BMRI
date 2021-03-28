@@ -24,7 +24,7 @@ def extract_patch_and_save(img, dim_p, stride, scale, folder_in, folder_gt, inde
             # kernel = fspecial('gaussian', [3 3], sigma);
             if (rd.uniform(0,1) < 0.5):
                 # imresize(imfilter(gt_patch, kernel), 1/resize_factor);
-                in_patch = cv.resize(cv.GaussianBlur(gt_patch,(3,3),sigma),dsize)
+                in_patch = cv.resize(cv.GaussianBlur(gt_patch,(7,7),sigma),dsize)
             else:
                 # imresize(gt_patch, 1/resize_factor);
                 in_patch = cv.resize(gt_patch,dsize)
@@ -72,5 +72,6 @@ for images in os.listdir(main_dir):
     for i in range(imgs.shape[-1]):
         index = extract_patch_and_save(fdata[:,:,i],dim_patch,stride,scale,f_in,f_gt,index,images)
 
+print(index)
 
 # **************************************************

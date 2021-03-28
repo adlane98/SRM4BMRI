@@ -85,7 +85,7 @@ if IS_RESTORE:
 else:
 	print("===========NEW MODEL")
 #/!\ It can have an issue when restore the model, so we have to manually set the start_epoch
-#start_epoch = 20
+start_epoch = 20
 
 print('the number of images is: ', data_reader.num_train_images)
 print("we start at ",start_epoch," epoch")
