@@ -58,13 +58,14 @@ def launch_training(
 ):
     launching_time = get_time()
 
-    if kernel_size % 2 != 0 or kernel_size <= 1 or kernel_size >= data.shape[1]:
+    if kernel_size % 2 != 1 or kernel_size <= 1 or kernel_size >= data.shape[1]:
         raise AttributeError(
             "The kernel size (-k, --kernel) needs to be odd, "
             "greater than 1 and smaller than the patch size."
         )
 
     padding = (kernel_size - 1)/2
+    padding = int(padding)
 
     json_file_name = fr"{get_path('metadata')}{launching_time}_training_parameter.json"
     write_metadata(
@@ -85,7 +86,7 @@ def launch_training(
 
     model = SRReCNN3D(data[0].shape, depth, nb_filters, kernel_size, padding)
     model.compile(
-        optimizer=Adam(),
+        optimizer=Adam(adam_lr),
         loss="mse",
         metrics=[psnr_model],
         run_eagerly=True
